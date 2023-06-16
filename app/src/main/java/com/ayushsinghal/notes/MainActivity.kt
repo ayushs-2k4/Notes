@@ -19,6 +19,7 @@ import com.ayushsinghal.notes.feature.authentication.presentation.signup.SignUpV
 import com.ayushsinghal.notes.feature.notes.data.local.NoteDao
 import com.ayushsinghal.notes.feature.notes.data.local.NoteDatabase
 import com.ayushsinghal.notes.feature.notes.data.repository.NoteRepositoryImpl
+import com.ayushsinghal.notes.feature.notes.presentation.AllNotesScreen
 import com.ayushsinghal.notes.ui.theme.NotesTheme
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -35,49 +36,51 @@ class MainActivity : ComponentActivity() {
                     color = MaterialTheme.colorScheme.background
                 ) {
 
-//                    val navController = rememberNavController()
-//
-//                    NavHost(navController = navController, startDestination = "SignUpScreen")
-//                    {
-//                        composable(route = "SignInScreen")
-//                        {
-//
-//                            val signInViewModel = SignInViewModel()
-//
-//                            SignInScreen(
-//                                onSignUpInsteadButtonClicked = {
-//                                    navController.navigate("SignUpScreen")
-//                                },
-//                                navController = navController,
-//                                signInViewModel = signInViewModel
-//                            )
-//                        }
-//
-//                        composable(route = "SignUpScreen")
-//                        {
-//                            val signUpViewModel = SignUpViewModel()
-//
-//                            SignUpScreen(
-//                                signUpViewModel = signUpViewModel,
-//                                onSignUpButtonClicked = {
-//                                    if (signUpViewModel.isValidCredentials()) {
-//                                        navController.navigate("AllNotesScreen")
-//                                    }
-//                                },
-//                                onSignInInsteadButtonClicked = {
-//                                    navController.navigate("SignInScreen")
-//                                })
-//                        }
-//
-//                        composable(route = "AllNotes")
-//                        {
-//
-//                        }
-//
-//                        composable(route = "AddNoteUseCase")
-//                        {
-//                        }
-//                    }
+                    val navController = rememberNavController()
+
+                    NavHost(navController = navController, startDestination = "AllNotesScreen")
+                    {
+                        composable(route = "SignInScreen")
+                        {
+
+                            val signInViewModel = SignInViewModel()
+
+                            SignInScreen(
+                                onSignUpInsteadButtonClicked = {
+                                    navController.navigate("SignUpScreen")
+                                },
+                                navController = navController,
+                                signInViewModel = signInViewModel
+                            )
+                        }
+
+                        composable(route = "SignUpScreen")
+                        {
+                            val signUpViewModel = SignUpViewModel()
+
+                            SignUpScreen(
+                                signUpViewModel = signUpViewModel,
+                                onSignUpButtonClicked = {
+                                    if (signUpViewModel.isValidCredentials()) {
+                                        navController.navigate("AllNotesScreen")
+                                    }
+                                },
+                                onSignInInsteadButtonClicked = {
+                                    navController.navigate("SignInScreen")
+                                })
+                        }
+
+                        composable(route = "AllNotesScreen")
+                        {
+                            AllNotesScreen(
+                                navController = navController
+                            )
+                        }
+
+                        composable(route = "AddNoteUseCase")
+                        {
+                        }
+                    }
                 }
             }
         }
