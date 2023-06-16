@@ -1,4 +1,4 @@
-package com.ayushsinghal.notes.feature.notes.presentation.components
+package com.ayushsinghal.notes.feature.notes.presentation.all_notes.components
 
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer

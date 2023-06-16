@@ -1,4 +1,4 @@
-package com.ayushsinghal.notes.feature.notes.presentation
+package com.ayushsinghal.notes.feature.notes.presentation.all_notes
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
@@ -44,12 +44,12 @@ import androidx.navigation.NavController
 import androidx.room.Room
 import com.ayushsinghal.notes.feature.notes.data.local.NoteDatabase
 import com.ayushsinghal.notes.feature.notes.data.repository.NoteRepositoryImpl
-import com.ayushsinghal.notes.feature.notes.domain.usecase.AddNoteUseCase
-import com.ayushsinghal.notes.feature.notes.domain.usecase.DeleteNoteUseCase
-import com.ayushsinghal.notes.feature.notes.domain.usecase.GetNotesUseCase
-import com.ayushsinghal.notes.feature.notes.domain.usecase.NoteUseCases
-import com.ayushsinghal.notes.feature.notes.presentation.components.NoteItem
-import com.ayushsinghal.notes.feature.notes.presentation.components.OrderSection
+import com.ayushsinghal.notes.feature.notes.domain.usecase.all_notes.AddNoteUseCase
+import com.ayushsinghal.notes.feature.notes.domain.usecase.all_notes.DeleteNoteUseCase
+import com.ayushsinghal.notes.feature.notes.domain.usecase.all_notes.GetNotesUseCase
+import com.ayushsinghal.notes.feature.notes.domain.usecase.all_notes.NoteUseCases
+import com.ayushsinghal.notes.feature.notes.presentation.all_notes.components.NoteItem
+import com.ayushsinghal.notes.feature.notes.presentation.all_notes.components.OrderSection
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
@@ -131,8 +131,7 @@ fun AllNotesScreen(
                                 actionLabel = "Undo"
                             )
 
-                            if(result==SnackbarResult.ActionPerformed)
-                            {
+                            if (result == SnackbarResult.ActionPerformed) {
                                 viewModel.onEvent(NotesEvent.RestoreNote)
                             }
                         }

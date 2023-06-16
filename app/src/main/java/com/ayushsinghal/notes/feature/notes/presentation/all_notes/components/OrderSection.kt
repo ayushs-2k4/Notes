@@ -1,11 +1,10 @@
-package com.ayushsinghal.notes.feature.notes.presentation.components
+package com.ayushsinghal.notes.feature.notes.presentation.all_notes.components
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
 import com.ayushsinghal.notes.feature.notes.util.NoteOrder
 import com.ayushsinghal.notes.feature.notes.util.OrderType
 

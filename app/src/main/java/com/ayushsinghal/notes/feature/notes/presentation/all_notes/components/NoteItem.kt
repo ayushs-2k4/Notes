@@ -1,4 +1,4 @@
-package com.ayushsinghal.notes.feature.notes.presentation.components
+package com.ayushsinghal.notes.feature.notes.presentation.all_notes.components
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -18,13 +18,13 @@ import com.ayushsinghal.notes.feature.notes.domain.model.Note
 @Composable
 fun NoteItem(
     note: Note,
-    onDeleteClick:()->Unit,
+    onDeleteClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Box(modifier = modifier)
     {
         Card(
-            modifier= Modifier.fillMaxSize()
+            modifier = Modifier.fillMaxSize()
         ) {
             Column() {
                 Text(
@@ -55,5 +55,11 @@ fun NoteItem(
 @Preview(showSystemUi = true)
 @Composable
 fun NoteItemPreview() {
-    NoteItem(Note(title = "Title", content = "Content Content Content Content Content Content Content Content Content Content Content Content Content Content Content Content Content Content Content Content Content ", lastModifiedDate = 2, createdDate = 1), onDeleteClick = {})
+    NoteItem(
+        Note(
+            title = "Title",
+            content = "Content Content Content Content Content Content Content Content Content Content Content Content Content Content Content Content Content Content Content Content Content ",
+            lastModifiedDate = 2,
+            createdDate = 1
+        ), onDeleteClick = {})
 }

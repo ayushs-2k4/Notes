@@ -7,19 +7,14 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import androidx.room.Room
 import com.ayushsinghal.notes.feature.authentication.presentation.signin.SignInScreen
 import com.ayushsinghal.notes.feature.authentication.presentation.signin.SignInViewModel
 import com.ayushsinghal.notes.feature.authentication.presentation.signup.SignUpScreen
 import com.ayushsinghal.notes.feature.authentication.presentation.signup.SignUpViewModel
-import com.ayushsinghal.notes.feature.notes.data.local.NoteDao
-import com.ayushsinghal.notes.feature.notes.data.local.NoteDatabase
-import com.ayushsinghal.notes.feature.notes.data.repository.NoteRepositoryImpl
-import com.ayushsinghal.notes.feature.notes.presentation.AllNotesScreen
+import com.ayushsinghal.notes.feature.notes.presentation.all_notes.AllNotesScreen
 import com.ayushsinghal.notes.ui.theme.NotesTheme
 import dagger.hilt.android.AndroidEntryPoint
 

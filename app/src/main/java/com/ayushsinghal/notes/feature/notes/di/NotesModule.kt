@@ -6,10 +6,10 @@ import com.ayushsinghal.notes.feature.notes.data.local.NoteDatabase
 import com.ayushsinghal.notes.feature.notes.data.local.NoteDatabase.Companion.DATABASE_NAME
 import com.ayushsinghal.notes.feature.notes.data.repository.NoteRepositoryImpl
 import com.ayushsinghal.notes.feature.notes.domain.repository.NoteRepository
-import com.ayushsinghal.notes.feature.notes.domain.usecase.AddNoteUseCase
-import com.ayushsinghal.notes.feature.notes.domain.usecase.DeleteNoteUseCase
-import com.ayushsinghal.notes.feature.notes.domain.usecase.GetNotesUseCase
-import com.ayushsinghal.notes.feature.notes.domain.usecase.NoteUseCases
+import com.ayushsinghal.notes.feature.notes.domain.usecase.all_notes.AddNoteUseCase
+import com.ayushsinghal.notes.feature.notes.domain.usecase.all_notes.DeleteNoteUseCase
+import com.ayushsinghal.notes.feature.notes.domain.usecase.all_notes.GetNotesUseCase
+import com.ayushsinghal.notes.feature.notes.domain.usecase.all_notes.NoteUseCases
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn

@@ -1,4 +1,4 @@
-package com.ayushsinghal.notes.feature.notes.presentation
+package com.ayushsinghal.notes.feature.notes.presentation.all_notes
 
 import com.ayushsinghal.notes.feature.notes.domain.model.Note
 import com.ayushsinghal.notes.feature.notes.util.NoteOrder

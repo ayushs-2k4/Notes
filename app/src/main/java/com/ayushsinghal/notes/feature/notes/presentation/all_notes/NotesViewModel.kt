@@ -1,11 +1,11 @@
-package com.ayushsinghal.notes.feature.notes.presentation
+package com.ayushsinghal.notes.feature.notes.presentation.all_notes
 
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ayushsinghal.notes.feature.notes.domain.model.Note
-import com.ayushsinghal.notes.feature.notes.domain.usecase.NoteUseCases
+import com.ayushsinghal.notes.feature.notes.domain.usecase.all_notes.NoteUseCases
 import com.ayushsinghal.notes.feature.notes.util.NoteOrder
 import com.ayushsinghal.notes.feature.notes.util.OrderType
 import dagger.hilt.android.lifecycle.HiltViewModel
