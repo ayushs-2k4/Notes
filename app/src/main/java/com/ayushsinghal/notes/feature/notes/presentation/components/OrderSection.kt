@@ -53,8 +53,8 @@ fun OrderSection(
     }
 }
 
-@Preview(showSystemUi = true)
-@Composable
-fun OrderSectionPreview() {
-    OrderSection(onOrderChange = {})
-}
+//@Preview(showSystemUi = true)
+//@Composable
+//fun OrderSectionPreview() {
+//    OrderSection(onOrderChange = {})
+//}
