@@ -1,5 +1,6 @@
 package com.ayushsinghal.notes.feature.notes.presentation.all_notes
 
+import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -42,6 +43,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.room.Room
+import com.ayushsinghal.notes.feature.authentication.presentation.signin.TAG
 import com.ayushsinghal.notes.feature.notes.data.local.NoteDatabase
 import com.ayushsinghal.notes.feature.notes.data.repository.NoteRepositoryImpl
 import com.ayushsinghal.notes.feature.notes.domain.usecase.all_notes.AddNoteUseCase
@@ -50,6 +52,7 @@ import com.ayushsinghal.notes.feature.notes.domain.usecase.all_notes.GetNotesUse
 import com.ayushsinghal.notes.feature.notes.domain.usecase.all_notes.NoteUseCases
 import com.ayushsinghal.notes.feature.notes.presentation.all_notes.components.NoteItem
 import com.ayushsinghal.notes.feature.notes.presentation.all_notes.components.OrderSection
+import com.ayushsinghal.notes.util.Screen
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
@@ -64,7 +67,8 @@ fun AllNotesScreen(
     val scope = rememberCoroutineScope()
 
     Scaffold(
-        snackbarHost = { SnackbarHost(SnackbarHostState()) }
+        snackbarHost = { SnackbarHost(SnackbarHostState()) },
+        floatingActionButton = { MyFloatingActionButton(navController = navController) }
     ) { paddingValues ->
 
         Column(
@@ -79,7 +83,8 @@ fun AllNotesScreen(
             ) {
                 Text(
                     text = "Your Notes",
-                    style = MaterialTheme.typography.headlineLarge
+                    style = MaterialTheme.typography.headlineLarge,
+                    modifier = Modifier.clickable { Log.d(TAG, "Clicked on Your Notes") }
                 )
 
                 IconButton(onClick = {
@@ -88,55 +93,61 @@ fun AllNotesScreen(
                     Icon(imageVector = Icons.Default.Sort, contentDescription = "Sort")
                 }
             }
-        }
 
-        AnimatedVisibility(
-            visible = state.isOrderSectionVisible,
-            enter = fadeIn() + slideInVertically(),
-            exit = fadeOut() + slideOutVertically()
-        ) {
-            OrderSection(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 48.dp),
-                noteOrder = state.noteOrder,
-                onOrderChange = {
-                    viewModel.onEvent(NotesEvent.Order(it))
-                }
-            )
-        }
 
-        Spacer(modifier = Modifier.height(16.dp))
-
-        LazyVerticalStaggeredGrid(
-            columns = StaggeredGridCells.Fixed(2),
-            modifier = Modifier.fillMaxSize()
-        )
-        {
-            items(state.notes)
-            {
-                NoteItem(
+            AnimatedVisibility(
+                visible = state.isOrderSectionVisible,
+                enter = fadeIn() + slideInVertically(),
+                exit = fadeOut() + slideOutVertically()
+            ) {
+                OrderSection(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .clickable {
-
-                        },
-                    note = it,
-                    onDeleteClick = {
-                        viewModel.onEvent(NotesEvent.DeleteNote(it))
-
-                        scope.launch {
-                            val result = snackBarHostState.showSnackbar(
-                                message = "Note Deleted",
-                                actionLabel = "Undo"
-                            )
-
-                            if (result == SnackbarResult.ActionPerformed) {
-                                viewModel.onEvent(NotesEvent.RestoreNote)
-                            }
-                        }
+                        .padding(vertical = 16.dp),
+                    noteOrder = state.noteOrder,
+                    onOrderChange = {
+                        viewModel.onEvent(NotesEvent.Order(it))
                     }
                 )
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            LazyVerticalStaggeredGrid(
+                columns = StaggeredGridCells.Fixed(2),
+                modifier = Modifier
+                    .fillMaxSize()
+            )
+            {
+                items(state.notes)
+                {
+                    NoteItem(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable {
+                                Log.d(TAG, "id: ${it.id}")
+                                navController.navigate(
+                                    Screen.AddEditNoteScreen.route +
+                                            "?noteId=${it.id}"
+                                )
+                            },
+                        note = it,
+                        onDeleteClick = {
+                            viewModel.onEvent(NotesEvent.DeleteNote(it))
+
+                            scope.launch {
+                                val result = snackBarHostState.showSnackbar(
+                                    message = "Note Deleted",
+                                    actionLabel = "Undo"
+                                )
+
+                                if (result == SnackbarResult.ActionPerformed) {
+                                    viewModel.onEvent(NotesEvent.RestoreNote)
+                                }
+                            }
+                        }
+                    )
+                }
             }
         }
     }
@@ -144,8 +155,12 @@ fun AllNotesScreen(
 }
 
 @Composable
-fun MyFloatingActionButton() {
-    FloatingActionButton(onClick = { /*TODO*/ }) {
+fun MyFloatingActionButton(
+    navController: NavController
+) {
+    FloatingActionButton(onClick = {
+        navController.navigate(Screen.AddEditNoteScreen.route)
+    }) {
         Icon(imageVector = Icons.Default.Create, contentDescription = "Add Note")
     }
 }

@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.Preview
 import com.ayushsinghal.notes.feature.notes.util.NoteOrder
 import com.ayushsinghal.notes.feature.notes.util.OrderType
 
@@ -52,8 +53,8 @@ fun OrderSection(
     }
 }
 
-//@Preview(showSystemUi = true)
-//@Composable
-//fun OrderSectionPreview() {
-//    OrderSection(onOrderChange = {})
-//}
+@Preview(showSystemUi = true)
+@Composable
+fun OrderSectionPreview() {
+    OrderSection(onOrderChange = {})
+}

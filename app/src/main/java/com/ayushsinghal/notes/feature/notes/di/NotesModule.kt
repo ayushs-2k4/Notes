@@ -6,6 +6,9 @@ import com.ayushsinghal.notes.feature.notes.data.local.NoteDatabase
 import com.ayushsinghal.notes.feature.notes.data.local.NoteDatabase.Companion.DATABASE_NAME
 import com.ayushsinghal.notes.feature.notes.data.repository.NoteRepositoryImpl
 import com.ayushsinghal.notes.feature.notes.domain.repository.NoteRepository
+import com.ayushsinghal.notes.feature.notes.domain.usecase.add_edit_note.AddEditNoteUseCases
+import com.ayushsinghal.notes.feature.notes.domain.usecase.add_edit_note.DeleteNoteAddEditUseCase
+import com.ayushsinghal.notes.feature.notes.domain.usecase.add_edit_note.GetNoteUseCase
 import com.ayushsinghal.notes.feature.notes.domain.usecase.all_notes.AddNoteUseCase
 import com.ayushsinghal.notes.feature.notes.domain.usecase.all_notes.DeleteNoteUseCase
 import com.ayushsinghal.notes.feature.notes.domain.usecase.all_notes.GetNotesUseCase
@@ -47,6 +50,21 @@ object NotesModule {
             addNoteUseCase = AddNoteUseCase(noteRepository),
             deleteNoteUseCase = DeleteNoteUseCase(noteRepository),
             getNotesUseCase = GetNotesUseCase(noteRepository)
+        )
+    }
+
+    @Singleton
+    @Provides
+    fun provideGetNoteUseCase(noteRepository: NoteRepository): GetNoteUseCase {
+        return GetNoteUseCase(noteRepository)
+    }
+
+    @Singleton
+    @Provides
+    fun provideAddEditNoteUseCases(noteRepository: NoteRepository): AddEditNoteUseCases {
+        return AddEditNoteUseCases(
+            deleteNoteAddEditUseCase = DeleteNoteAddEditUseCase(noteRepository),
+            getNoteUseCase = GetNoteUseCase(noteRepository)
         )
     }
 }

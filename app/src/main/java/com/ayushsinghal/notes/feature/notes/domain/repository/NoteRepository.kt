@@ -11,7 +11,7 @@ interface NoteRepository {
     suspend fun upsertNote(note: Note)
 
     @Delete
-    suspend fun deleteNote(note: Note)
+    suspend fun deleteNote(id: Int)
 
     @Query("SELECT * FROM notes")
     fun getAllNotes(): Flow<List<Note>>

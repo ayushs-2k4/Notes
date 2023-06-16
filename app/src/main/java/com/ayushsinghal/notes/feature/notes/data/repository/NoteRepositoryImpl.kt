@@ -13,8 +13,12 @@ class NoteRepositoryImpl(
         noteDao.upsertNote(note)
     }
 
-    override suspend fun deleteNote(note: Note) {
-        noteDao.deleteNote(note)
+//    override suspend fun deleteNote(note: Note) {
+//        noteDao.deleteNote(note)
+//    }
+
+    override suspend fun deleteNote(id: Int) {
+        noteDao.deleteNote(id)
     }
 
     override fun getAllNotes(): Flow<List<Note>> {
