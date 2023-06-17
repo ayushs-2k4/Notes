@@ -41,7 +41,7 @@ class AddEditNoteViewModel @Inject constructor(
     private val _tagsLiveData = MutableStateFlow<List<String>>(emptyList())
     val tagsLiveData: Flow<List<String>> = _tagsLiveData
 
-    private var currentNoteId: Int? = null
+     var currentNoteId: Int? = null
     private var currentNoteCreatedDate: Long? = null
     private var currentNoteLastModifiedDate: Long? = null
     private var oldNoteTitle: String? = null

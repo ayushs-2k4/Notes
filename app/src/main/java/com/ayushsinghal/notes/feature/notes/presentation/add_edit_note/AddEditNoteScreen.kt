@@ -42,6 +42,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
+import com.ayushsinghal.notes.feature.notes.presentation.add_edit_note.components.DeleteDialog
 import com.ayushsinghal.notes.feature.notes.presentation.add_edit_note.components.TagInputDialog
 import com.ayushsinghal.notes.feature.notes.presentation.add_edit_note.components.TransparentHintTextField
 import kotlinx.coroutines.launch
@@ -66,15 +67,17 @@ fun AddEditNoteScreen(
 
     val myTagsList by viewModel.tagsLiveData.collectAsState(initial = emptyList())
 
-    val showDialog = remember { mutableStateOf(false) }
+    val showTagDialog = remember { mutableStateOf(false) }
     val tagIndex = remember { mutableStateOf(-1) }
+
+    val showDeleteDialog = remember { mutableStateOf(false) }
 
     BackHandler {
         viewModel.onEvent(AddEditNoteEvent.SaveNote)
         navController.popBackStack()
     }
 
-    if (showDialog.value) {
+    if (showTagDialog.value) {
         TagInputDialog(
             isNewTag = tagIndex.value == -1,  // To check if clicked on new tag or existing tag
             tagText = if (tagIndex.value == -1) {
@@ -94,7 +97,7 @@ fun AddEditNoteScreen(
                         )
                     )
                 }
-                showDialog.value = false
+                showTagDialog.value = false
                 tagIndex.value = -1
             }, onClickCancelOrDelete = {
                 viewModel.onEvent(
@@ -104,9 +107,30 @@ fun AddEditNoteScreen(
                         tag = "random"
                     )
                 )
-                showDialog.value = false
+                showTagDialog.value = false
                 tagIndex.value = -1
             })
+    }
+
+    if (showDeleteDialog.value) {
+        DeleteDialog(
+            message = "Do you want to delete note",
+            onCancelClick = {
+                showDeleteDialog.value = false
+            },
+            onDeleteClick = {
+                viewModel.viewModelScope.launch {
+                    viewModel.onEvent(
+                        AddEditNoteEvent.DeleteNote(
+                            context = context,
+                            navController = navController
+                        )
+                    )
+                    navController.popBackStack()
+                }
+                showDeleteDialog.value = false
+            }
+        )
     }
 
     Scaffold(
@@ -118,16 +142,9 @@ fun AddEditNoteScreen(
 
         bottomBar = {
             BottomBar(
+                isNewNote = viewModel.currentNoteId == null,
                 onClickDelete = {
-                    viewModel.viewModelScope.launch {
-                        viewModel.onEvent(
-                            AddEditNoteEvent.DeleteNote(
-                                context = context,
-                                navController = navController
-                            )
-                        )
-                        navController.popBackStack()
-                    }
+                    showDeleteDialog.value = true
                 },
                 onClickShare = {
                     viewModel.viewModelScope.launch {
@@ -149,11 +166,11 @@ fun AddEditNoteScreen(
             ) {
 
             TagsColumn(tagsList = myTagsList, onAddTagButtonClick = {
-                showDialog.value = true
+                showTagDialog.value = true
             },
                 onClick = {
                     tagIndex.value = it
-                    showDialog.value = true
+                    showTagDialog.value = true
                 }
             )
 
@@ -234,6 +251,7 @@ fun TopBar(
 
 @Composable
 fun BottomBar(
+    isNewNote: Boolean,
     onClickDelete: () -> Unit,
     onClickShare: () -> Unit,
     onClickMenu: () -> Unit
@@ -245,8 +263,10 @@ fun BottomBar(
             horizontalArrangement = Arrangement.End,
             modifier = Modifier.fillMaxWidth()
         ) {
-            IconButton(onClick = { onClickDelete() }) {
-                Icon(imageVector = Icons.Default.Delete, contentDescription = "Delete Note")
+            if (!isNewNote) {
+                IconButton(onClick = { onClickDelete() }) {
+                    Icon(imageVector = Icons.Default.Delete, contentDescription = "Delete Note")
+                }
             }
 
             IconButton(onClick = { onClickShare() }) {
