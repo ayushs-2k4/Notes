@@ -1,23 +1,13 @@
 package com.ayushsinghal.notes.feature.notes.presentation.all_notes
 
 import android.util.Log
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.slideInVertically
-import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
@@ -30,7 +20,6 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -39,9 +28,9 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.platform.LocalContext
@@ -57,6 +46,8 @@ import com.ayushsinghal.notes.feature.notes.domain.usecase.all_notes.AddNoteUseC
 import com.ayushsinghal.notes.feature.notes.domain.usecase.all_notes.DeleteNoteUseCase
 import com.ayushsinghal.notes.feature.notes.domain.usecase.all_notes.GetNotesUseCase
 import com.ayushsinghal.notes.feature.notes.domain.usecase.all_notes.NoteUseCases
+import com.ayushsinghal.notes.feature.notes.domain.usecase.all_notes.SearchNotesUseCase
+import com.ayushsinghal.notes.feature.notes.presentation.add_edit_note.components.MySearchBar
 import com.ayushsinghal.notes.feature.notes.presentation.all_notes.components.NoteItem
 import com.ayushsinghal.notes.feature.notes.presentation.all_notes.components.OrderSection
 import com.ayushsinghal.notes.util.Screen
@@ -73,16 +64,32 @@ fun AllNotesScreen(
     val snackBarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
 
+    val searchResultsKey = remember { mutableStateOf(0) }
+
     Scaffold(
 //                viewModel.onEvent(NotesEvent.ToggleOrderSection)
-        topBar = { TopBar(onSortButtonPressed = {viewModel.onEvent(NotesEvent.ToggleOrderSection)}) },
+        topBar = {
+            TopBar(
+                onSortButtonPressed = { viewModel.onEvent(NotesEvent.ToggleOrderSection) },
+                onMenuButtonPressed = {},
+                onQueryChange = {
+                    viewModel.onEvent(NotesEvent.SearchNote(it))
+                    searchResultsKey.value++
+                },
+                onSearch = {
+                    viewModel.onEvent(NotesEvent.SearchNote(it))
+                    searchResultsKey.value++
+                }
+            )
+        },
         snackbarHost = { SnackbarHost(SnackbarHostState()) },
         floatingActionButton = { MyFloatingActionButton(navController = navController) }
     ) { paddingValues ->
 
-        Box(modifier = Modifier
-            .fillMaxSize()
-            .padding(paddingValues)
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
         ) {
 
             val offsetYOfOrderSection by animateDpAsState(
@@ -121,11 +128,6 @@ fun AllNotesScreen(
                             .fillMaxWidth()
                             .padding(10.dp)
                             .clickable {
-//                                Log.d(TAG, "id: ${note.id}")
-//                                navController.navigate(
-//                                    Screen.AddEditNoteScreen.route +
-//                                            "?noteId=${note.id}"
-//                                )
                             },
                         note = note,
                         onClick = {
@@ -171,45 +173,59 @@ fun MyFloatingActionButton(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TopBar(
-    onSortButtonPressed: () -> Unit
+    onSortButtonPressed: () -> Unit,
+    onMenuButtonPressed: () -> Unit,
+    onQueryChange: (String) -> Unit,
+    onSearch: (String) -> Unit
 ) {
     TopAppBar(
         title = {
             Text(text = "Your Notes")
         },
-actions = {
-    IconButton(onClick = { onSortButtonPressed() }) {
-        Icon(imageVector = Icons.Default.Sort, contentDescription = "Sort")
-    }
-}
+        actions = {
+
+            MySearchBar(
+                modifier = Modifier
+                    .fillMaxWidth(),
+                onSortButtonPressed = { onSortButtonPressed() },
+                onMenuButtonPressed = { onMenuButtonPressed() },
+                onQueryChange = { onQueryChange(it) },
+                onSearch = { onSearch(it) }
+            )
+
+//            IconButton(onClick = { onSortButtonPressed() }) {
+//                Icon(imageVector = Icons.Default.Sort, contentDescription = "Sort")
+//            }
+        }
     )
 }
 
-@Preview(showSystemUi = true)
-@Composable
-fun AllNotesScreenPreview() {
-
-    val noteDatabase = Room
-        .databaseBuilder(
-            LocalContext.current,
-            NoteDatabase::class.java,
-            NoteDatabase.DATABASE_NAME
-        )
-        .build()
-
-    val noteRepositoryImpl = NoteRepositoryImpl(noteDatabase.noteDao)
-
-    val notesUseCases = NoteUseCases(
-        addNoteUseCase = AddNoteUseCase(noteRepositoryImpl),
-        deleteNoteUseCase = DeleteNoteUseCase(noteRepositoryImpl),
-        getNotesUseCase = GetNotesUseCase(noteRepositoryImpl)
-    )
-
-    AllNotesScreen(
-        navController = NavController(LocalContext.current),
-        viewModel = NotesViewModel(notesUseCases)
-    )
-}
+//@Preview(showSystemUi = true)
+//@Composable
+//fun AllNotesScreenPreview() {
+//
+//    val noteDatabase = Room
+//        .databaseBuilder(
+//            LocalContext.current,
+//            NoteDatabase::class.java,
+//            NoteDatabase.DATABASE_NAME
+//        )
+//        .build()
+//
+//    val noteRepositoryImpl = NoteRepositoryImpl(noteDatabase.noteDao)
+//
+//    val notesUseCases = NoteUseCases(
+//        addNoteUseCase = AddNoteUseCase(noteRepositoryImpl),
+//        deleteNoteUseCase = DeleteNoteUseCase(noteRepositoryImpl),
+//        getNotesUseCase = GetNotesUseCase(noteRepositoryImpl),
+//        searchNotesUseCase = SearchNotesUseCase(noteRepositoryImpl)
+//    )
+//
+//    AllNotesScreen(
+//        navController = NavController(LocalContext.current),
+//        viewModel = NotesViewModel(notesUseCases)
+//    )
+//}
 
 //@Preview
 //@Composable

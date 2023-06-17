@@ -19,6 +19,7 @@ import com.ayushsinghal.notes.feature.notes.domain.usecase.all_notes.AddNoteUseC
 import com.ayushsinghal.notes.feature.notes.domain.usecase.all_notes.DeleteNoteUseCase
 import com.ayushsinghal.notes.feature.notes.domain.usecase.all_notes.GetNotesUseCase
 import com.ayushsinghal.notes.feature.notes.domain.usecase.all_notes.NoteUseCases
+import com.ayushsinghal.notes.feature.notes.domain.usecase.all_notes.SearchNotesUseCase
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -53,9 +54,10 @@ object NotesModule {
     @Provides
     fun provideUseCases(noteRepository: NoteRepository): NoteUseCases {
         return NoteUseCases(
-            addNoteUseCase = AddNoteUseCase(noteRepository),
-            deleteNoteUseCase = DeleteNoteUseCase(noteRepository),
-            getNotesUseCase = GetNotesUseCase(noteRepository)
+            addNoteUseCase = AddNoteUseCase(noteRepository = noteRepository),
+            deleteNoteUseCase = DeleteNoteUseCase(noteRepository = noteRepository),
+            getNotesUseCase = GetNotesUseCase(noteRepository = noteRepository),
+            searchNotesUseCase = SearchNotesUseCase(noteRepository = noteRepository)
         )
     }
 

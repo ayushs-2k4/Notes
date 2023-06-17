@@ -5,7 +5,7 @@ import com.ayushsinghal.notes.feature.notes.domain.model.Note
 import com.ayushsinghal.notes.feature.notes.domain.repository.NoteRepository
 
 class AddNoteUseCase(
-    private val repository: NoteRepository
+    private val noteRepository: NoteRepository
 ) {
 
     @Throws(InvalidNoteException::class)
@@ -13,7 +13,7 @@ class AddNoteUseCase(
         if (note.title.isEmpty() && note.content.isEmpty()) {
             throw InvalidNoteException("Both Title and content can not be empty")
         } else {
-            repository.upsertNote(note)
+            noteRepository.upsertNote(note)
         }
     }
 }

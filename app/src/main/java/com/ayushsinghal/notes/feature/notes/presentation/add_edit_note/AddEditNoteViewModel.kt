@@ -205,7 +205,10 @@ class AddEditNoteViewModel @Inject constructor(
 
             is AddEditNoteEvent.OnPlusTagButtonClick -> { // If clicked on plus button to add new tag
                 Log.d(TAG, "NoteID: $currentNoteId")
-                if (addEditNoteEvent.tag.isNotEmpty()) {
+                if ((addEditNoteEvent.tag.isNotEmpty()) && (!_tagsLiveData.value.contains(
+                        addEditNoteEvent.tag
+                    ))
+                ) {
                     _tagsLiveData.value = _tagsLiveData.value + addEditNoteEvent.tag
                 }
             }
