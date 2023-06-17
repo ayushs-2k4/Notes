@@ -6,26 +6,39 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
 import androidx.compose.foundation.lazy.staggeredgrid.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Create
-import androidx.compose.material.icons.filled.Sort
+import androidx.compose.material.icons.outlined.Archive
+import androidx.compose.material.icons.outlined.Delete
+import androidx.compose.material.icons.outlined.Feedback
+import androidx.compose.material.icons.outlined.Lightbulb
+import androidx.compose.material.icons.outlined.Settings
+import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
+import androidx.compose.material3.ModalDrawerSheet
+import androidx.compose.material3.ModalNavigationDrawer
+import androidx.compose.material3.NavigationDrawerItem
+import androidx.compose.material3.NavigationDrawerItemDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -33,30 +46,112 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import androidx.room.Room
 import com.ayushsinghal.notes.feature.authentication.presentation.signin.TAG
-import com.ayushsinghal.notes.feature.notes.data.local.NoteDatabase
-import com.ayushsinghal.notes.feature.notes.data.repository.NoteRepositoryImpl
-import com.ayushsinghal.notes.feature.notes.domain.usecase.all_notes.AddNoteUseCase
-import com.ayushsinghal.notes.feature.notes.domain.usecase.all_notes.DeleteNoteUseCase
-import com.ayushsinghal.notes.feature.notes.domain.usecase.all_notes.GetNotesUseCase
-import com.ayushsinghal.notes.feature.notes.domain.usecase.all_notes.NoteUseCases
-import com.ayushsinghal.notes.feature.notes.domain.usecase.all_notes.SearchNotesUseCase
 import com.ayushsinghal.notes.feature.notes.presentation.add_edit_note.components.MySearchBar
 import com.ayushsinghal.notes.feature.notes.presentation.all_notes.components.NoteItem
 import com.ayushsinghal.notes.feature.notes.presentation.all_notes.components.OrderSection
+import com.ayushsinghal.notes.util.NavigationDrawerScreen
 import com.ayushsinghal.notes.util.Screen
 import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
 fun AllNotesScreen(
     navController: NavController,
+    viewModel: NotesViewModel = hiltViewModel()
+) {
+    val drawerState = rememberDrawerState(DrawerValue.Closed)
+    val scope = rememberCoroutineScope()
+// icons to mimic drawer destinations
+//    val drawerItems = listOf(Icons.Default.Favorite, Icons.Default.Face, Icons.Default.Email)
+//    val selectedItem = remember { mutableStateOf(drawerItems[0]) }
+
+    val navigationDrawerItems = listOf(
+        NavigationDrawerItem(
+            icon = Icons.Outlined.Lightbulb,
+            label = "Notes",
+            navigationDrawerScreen = Screen.AllNotesScreen.route
+        ),
+        NavigationDrawerItem(
+            icon = Icons.Outlined.Archive,
+            label = "Archive",
+            navigationDrawerScreen = NavigationDrawerScreen.Archive.route
+        ),
+        NavigationDrawerItem(
+            icon = Icons.Outlined.Delete,
+            label = "Trash",
+            navigationDrawerScreen = NavigationDrawerScreen.Trash.route
+        ),
+        NavigationDrawerItem(
+            icon = Icons.Outlined.Settings,
+            label = "Settings",
+            navigationDrawerScreen = NavigationDrawerScreen.Settings.route
+        ),
+        NavigationDrawerItem(
+            icon = Icons.Outlined.Feedback,
+            label = "Feedback",
+            navigationDrawerScreen = NavigationDrawerScreen.Feedback.route
+        ),
+    )
+    val selectedItem = remember { mutableStateOf(navigationDrawerItems[0]) }
+    val currentScreen = navController.currentDestination?.route
+
+    ModalNavigationDrawer(
+        drawerState = drawerState,
+        gesturesEnabled = drawerState.currentValue != DrawerValue.Closed,
+        drawerContent = {
+            ModalDrawerSheet {
+                Spacer(Modifier.height(12.dp))
+                navigationDrawerItems.forEach { navigationDrawerItem ->
+                    NavigationDrawerItem(
+                        icon = { Icon(navigationDrawerItem.icon, contentDescription = null) },
+                        label = {
+                            Text(
+                                text = navigationDrawerItem.label,
+                                fontFamily = FontFamily.SansSerif
+                            )
+                        },
+                        selected = navigationDrawerItem.navigationDrawerScreen == currentScreen,
+                        onClick = {
+                            scope.launch { drawerState.close() }
+                            selectedItem.value = navigationDrawerItem
+                            navController.navigate(navigationDrawerItem.navigationDrawerScreen)
+                        },
+                        modifier = Modifier
+                            .padding(NavigationDrawerItemDefaults.ItemPadding)
+                            .width(300.dp)
+                            .height(50.dp)
+                    )
+                }
+            }
+        }
+    ) {
+        AllNotesScreenMainScreen(
+            navController = navController,
+            onMenuButtonPressed = {
+                scope.launch {
+                    drawerState.open()
+                }
+            }
+        )
+    }
+}
+
+data class NavigationDrawerItem(
+    val icon: ImageVector,
+    val label: String,
+    val navigationDrawerScreen: String
+)
+
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
+@Composable
+fun AllNotesScreenMainScreen(
+    navController: NavController,
+    onMenuButtonPressed: () -> Unit,
     viewModel: NotesViewModel = hiltViewModel()
 ) {
     val state = viewModel.state.value
@@ -67,11 +162,10 @@ fun AllNotesScreen(
     val searchResultsKey = remember { mutableStateOf(0) }
 
     Scaffold(
-//                viewModel.onEvent(NotesEvent.ToggleOrderSection)
         topBar = {
             TopBar(
                 onSortButtonPressed = { viewModel.onEvent(NotesEvent.ToggleOrderSection) },
-                onMenuButtonPressed = {},
+                onMenuButtonPressed = { onMenuButtonPressed() },
                 onQueryChange = {
                     viewModel.onEvent(NotesEvent.SearchNote(it))
                     searchResultsKey.value++
@@ -192,10 +286,6 @@ fun TopBar(
                 onQueryChange = { onQueryChange(it) },
                 onSearch = { onSearch(it) }
             )
-
-//            IconButton(onClick = { onSortButtonPressed() }) {
-//                Icon(imageVector = Icons.Default.Sort, contentDescription = "Sort")
-//            }
         }
     )
 }

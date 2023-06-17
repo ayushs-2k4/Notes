@@ -7,6 +7,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowCompat
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -18,7 +20,12 @@ import com.ayushsinghal.notes.feature.authentication.presentation.signup.SignUpS
 import com.ayushsinghal.notes.feature.authentication.presentation.signup.SignUpViewModel
 import com.ayushsinghal.notes.feature.notes.presentation.add_edit_note.AddEditNoteScreen
 import com.ayushsinghal.notes.feature.notes.presentation.all_notes.AllNotesScreen
+import com.ayushsinghal.notes.feature.notes.presentation.navigation_drawer_screens.archive_screen.ArchiveScreen
+import com.ayushsinghal.notes.feature.notes.presentation.navigation_drawer_screens.feedback_screen.FeedbackScreen
+import com.ayushsinghal.notes.feature.notes.presentation.navigation_drawer_screens.trash_screen.TrashScreen
+import com.ayushsinghal.notes.feature.notes.presentation.navigation_drawer_screens.settings_screen.SettingsScreen
 import com.ayushsinghal.notes.ui.theme.NotesTheme
+import com.ayushsinghal.notes.util.NavigationDrawerScreen
 import com.ayushsinghal.notes.util.Screen
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -27,6 +34,13 @@ import dagger.hilt.android.AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        WindowCompat.setDecorFitsSystemWindows(window, false)
+        val windowInsetsController =
+            ViewCompat.getWindowInsetsController(window.decorView)
+//        window.statusBarColor = (Color.Blue.toArgb())
+//        window.navigationBarColor = (Color.Transparent.toArgb())
+
+        windowInsetsController?.isAppearanceLightNavigationBars = true
         setContent {
             NotesTheme {
                 // A surface container using the 'background' color from the theme
@@ -93,6 +107,26 @@ class MainActivity : ComponentActivity() {
                         )
                         {
                             AddEditNoteScreen(navController = navController)
+                        }
+
+                        composable(route = NavigationDrawerScreen.Archive.route)
+                        {
+                            ArchiveScreen()
+                        }
+
+                        composable(route = NavigationDrawerScreen.Trash.route)
+                        {
+                            TrashScreen()
+                        }
+
+                        composable(route = NavigationDrawerScreen.Settings.route)
+                        {
+                            SettingsScreen()
+                        }
+
+                        composable(route = NavigationDrawerScreen.Feedback.route)
+                        {
+                            FeedbackScreen()
                         }
                     }
                 }

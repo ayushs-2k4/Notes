@@ -120,5 +120,8 @@ dependencies {
     implementation("androidx.hilt:hilt-navigation-compose:1.1.0-alpha01")
 
     implementation(platform("androidx.compose:compose-bom:2023.05.01"))
+
+    // System UI Controller for Jetpack Compose
+    implementation("com.google.accompanist:accompanist-systemuicontroller:0.30.1")
 }
 
