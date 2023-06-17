@@ -1,7 +1,11 @@
 package com.ayushsinghal.notes.feature.notes.di
 
 import android.app.Application
+import android.content.Context
+import androidx.navigation.NavController
+import androidx.navigation.Navigation
 import androidx.room.Room
+import com.ayushsinghal.notes.R
 import com.ayushsinghal.notes.feature.notes.data.local.NoteDatabase
 import com.ayushsinghal.notes.feature.notes.data.local.NoteDatabase.Companion.DATABASE_NAME
 import com.ayushsinghal.notes.feature.notes.data.repository.NoteRepositoryImpl
@@ -9,7 +13,7 @@ import com.ayushsinghal.notes.feature.notes.domain.repository.NoteRepository
 import com.ayushsinghal.notes.feature.notes.domain.usecase.add_edit_note.AddEditNoteUseCases
 import com.ayushsinghal.notes.feature.notes.domain.usecase.add_edit_note.DeleteNoteAddEditUseCase
 import com.ayushsinghal.notes.feature.notes.domain.usecase.add_edit_note.GetNoteUseCase
-import com.ayushsinghal.notes.feature.notes.domain.usecase.add_edit_note.ShareNoteUseCase
+import com.ayushsinghal.notes.feature.notes.domain.usecase.add_edit_note.ShareNoteAddEditUseCase
 import com.ayushsinghal.notes.feature.notes.domain.usecase.all_notes.AddNoteUseCase
 import com.ayushsinghal.notes.feature.notes.domain.usecase.all_notes.DeleteNoteUseCase
 import com.ayushsinghal.notes.feature.notes.domain.usecase.all_notes.GetNotesUseCase
@@ -66,7 +70,7 @@ object NotesModule {
         return AddEditNoteUseCases(
             deleteNoteAddEditUseCase = DeleteNoteAddEditUseCase(noteRepository),
             getNoteUseCase = GetNoteUseCase(noteRepository),
-            shareNoteUseCase = ShareNoteUseCase()
+            shareNoteUseCase = ShareNoteAddEditUseCase()
         )
     }
 }

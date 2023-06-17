@@ -1,6 +1,8 @@
 package com.ayushsinghal.notes.feature.notes.presentation.add_edit_note
 
 import android.content.Context
+import android.content.DialogInterface
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -18,6 +20,7 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.IosShare
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Share
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -30,6 +33,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -39,6 +43,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.SavedStateHandle
+import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
 import androidx.room.Room
 import com.ayushsinghal.notes.feature.notes.data.local.NoteDatabase
@@ -51,6 +56,8 @@ import com.ayushsinghal.notes.feature.notes.domain.usecase.all_notes.DeleteNoteU
 import com.ayushsinghal.notes.feature.notes.domain.usecase.all_notes.GetNotesUseCase
 import com.ayushsinghal.notes.feature.notes.domain.usecase.all_notes.NoteUseCases
 import com.ayushsinghal.notes.feature.notes.presentation.add_edit_note.components.TransparentHintTextField
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -62,13 +69,20 @@ fun AddEditNoteScreen(
     viewModel: AddEditNoteViewModel = hiltViewModel()
 ) {
 
-    val context= LocalContext.current
+    val context = LocalContext.current
+
+//    val coroutineScope = rememberCoroutineScope()
 
     val titleState = viewModel.noteTitle.value
     val contentState = viewModel.noteContent.value
 
     val createdDate by remember { mutableStateOf(viewModel.currentNotesCreatedDate2) }
     val lastModifiedDate by remember { mutableStateOf(viewModel.currentNotesLastModifiedDate2) }
+
+    BackHandler {
+        viewModel.onEvent(AddEditNoteEvent.SaveNote)
+        navController.popBackStack()
+    }
 
     Scaffold(
         topBar = {
@@ -79,9 +93,17 @@ fun AddEditNoteScreen(
 
         bottomBar = {
             BottomBar(
-                onClickDelete = {},
+                onClickDelete = {
+//                                viewModel.onEvent(AddEditNoteEvent.DeleteNote(context))
+                    viewModel.viewModelScope.launch {
+                        viewModel.onEvent(AddEditNoteEvent.DeleteNote(context=context,navController=navController))
+                        navController.popBackStack()
+                    }
+                },
                 onClickShare = {
-                               viewModel.onEvent(AddEditNoteEvent.ShareNote(context))
+                    viewModel.viewModelScope.launch {
+                    viewModel.onEvent(AddEditNoteEvent.ShareNote(context))
+                    }
                 },
                 onClickMenu = {}
             )

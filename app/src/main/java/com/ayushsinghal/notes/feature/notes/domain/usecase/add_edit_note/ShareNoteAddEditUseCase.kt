@@ -4,7 +4,7 @@ import android.content.Context
 import android.content.Intent
 import com.ayushsinghal.notes.feature.notes.domain.model.Note
 
-class ShareNoteUseCase {
+class ShareNoteAddEditUseCase {
 
     suspend operator fun invoke(context: Context, note: Note) {
         val intent = Intent()

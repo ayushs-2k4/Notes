@@ -1,16 +1,22 @@
 package com.ayushsinghal.notes.feature.notes.presentation.add_edit_note
 
+import android.content.DialogInterface
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.navigation.NavController
+import com.ayushsinghal.notes.R
 import com.ayushsinghal.notes.feature.notes.domain.model.InvalidNoteException
 import com.ayushsinghal.notes.feature.notes.domain.model.Note
 import com.ayushsinghal.notes.feature.notes.domain.usecase.add_edit_note.AddEditNoteUseCases
 import com.ayushsinghal.notes.feature.notes.domain.usecase.add_edit_note.GetNoteUseCase
 import com.ayushsinghal.notes.feature.notes.domain.usecase.all_notes.NoteUseCases
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -145,17 +151,22 @@ class AddEditNoteViewModel @Inject constructor(
                 }
             }
 
-            AddEditNoteEvent.DeleteNote -> {
-                viewModelScope.launch(Dispatchers.IO) {
-                    addEditNoteUseCases.deleteNoteAddEditUseCase(currentNoteId!!)
+            is AddEditNoteEvent.DeleteNote -> {
+                viewModelScope.launch {
+                    addEditNoteUseCases.deleteNoteAddEditUseCase(
+                        context = addEditNoteEvent.context,
+                        viewModelScope = viewModelScope,
+                        navController = addEditNoteEvent.navController,
+                        id = currentNoteId!!
+                    )
                 }
             }
 
             is AddEditNoteEvent.ShareNote -> {
                 viewModelScope.launch {
                     addEditNoteUseCases.shareNoteUseCase(
-                        addEditNoteEvent.context,
-                        Note(
+                        context = addEditNoteEvent.context,
+                        note = Note(
                             title = _noteTitle.value.text,
                             content = _noteContent.value.text,
                             lastModifiedDate = 1,
