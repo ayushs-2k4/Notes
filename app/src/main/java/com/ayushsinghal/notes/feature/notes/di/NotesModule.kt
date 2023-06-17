@@ -9,6 +9,7 @@ import com.ayushsinghal.notes.feature.notes.domain.repository.NoteRepository
 import com.ayushsinghal.notes.feature.notes.domain.usecase.add_edit_note.AddEditNoteUseCases
 import com.ayushsinghal.notes.feature.notes.domain.usecase.add_edit_note.DeleteNoteAddEditUseCase
 import com.ayushsinghal.notes.feature.notes.domain.usecase.add_edit_note.GetNoteUseCase
+import com.ayushsinghal.notes.feature.notes.domain.usecase.add_edit_note.ShareNoteUseCase
 import com.ayushsinghal.notes.feature.notes.domain.usecase.all_notes.AddNoteUseCase
 import com.ayushsinghal.notes.feature.notes.domain.usecase.all_notes.DeleteNoteUseCase
 import com.ayushsinghal.notes.feature.notes.domain.usecase.all_notes.GetNotesUseCase
@@ -64,7 +65,8 @@ object NotesModule {
     fun provideAddEditNoteUseCases(noteRepository: NoteRepository): AddEditNoteUseCases {
         return AddEditNoteUseCases(
             deleteNoteAddEditUseCase = DeleteNoteAddEditUseCase(noteRepository),
-            getNoteUseCase = GetNoteUseCase(noteRepository)
+            getNoteUseCase = GetNoteUseCase(noteRepository),
+            shareNoteUseCase = ShareNoteUseCase()
         )
     }
 }

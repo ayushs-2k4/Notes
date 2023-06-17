@@ -1,5 +1,6 @@
 package com.ayushsinghal.notes.feature.notes.presentation.add_edit_note
 
+import android.content.Context
 import androidx.compose.ui.focus.FocusState
 
 sealed class AddEditNoteEvent {
@@ -14,4 +15,6 @@ sealed class AddEditNoteEvent {
     object SaveNote : AddEditNoteEvent()
 
     object DeleteNote : AddEditNoteEvent()
+
+    data class ShareNote(val context: Context) : AddEditNoteEvent()
 }

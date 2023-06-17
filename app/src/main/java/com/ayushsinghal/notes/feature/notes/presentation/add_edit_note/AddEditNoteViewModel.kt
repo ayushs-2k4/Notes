@@ -2,6 +2,7 @@ package com.ayushsinghal.notes.feature.notes.presentation.add_edit_note
 
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -29,25 +30,54 @@ class AddEditNoteViewModel @Inject constructor(
     private val _noteContent = mutableStateOf<NoteTextFieldState>(NoteTextFieldState(hint = "Note"))
     val noteContent: State<NoteTextFieldState> = _noteContent
 
+    private val _currentNotesCreatedDate2 = mutableStateOf<Long>(-1)
+    val currentNotesCreatedDate2: State<Long> = _currentNotesCreatedDate2
+
+    private val _currentNotesLastModifiedDate2 = mutableStateOf<Long>(-1)
+    val currentNotesLastModifiedDate2: State<Long> = _currentNotesLastModifiedDate2
+
     private var currentNoteId: Int? = null
+    private var currentNoteCreatedDate: Long? = null
+    private var currentNoteLastModifiedDate: Long? = null
+    private var oldNoteTitle: String? = null
+    private var oldNoteContent: String? = null
 
     init {
         savedStateHandle.get<Int>("noteId")
             ?.let { noteId -> // If we clicked on a current Note to edit it
                 if (noteId != -1) { // Because New Note will have initial id as -1
-                    viewModelScope.launch(Dispatchers.IO) {
+                    viewModelScope.launch {
                         addEditNoteUseCases.getNoteUseCase(noteId)?.also { note ->
                             currentNoteId = noteId
                             _noteTitle.value = noteTitle.value.copy(
+//                                isHintVisible =  _noteTitle.value.text.isBlank(),
+                                isHintVisible = note.title.isBlank(),
                                 text = note.title,
-                                isHintVisible = false
                             )
+//                                val myBool =  note.content.isBlank()
 
                             _noteContent.value = noteContent.value.copy(
+//                                isHintVisible = _noteContent.value.text.isBlank(),
+                                isHintVisible = note.content.isBlank(),
+//                                isHintVisible = myBool,
                                 text = note.content,
-                                isHintVisible = false
                             )
                         }
+                    }
+
+                    viewModelScope.launch {
+
+                        val note: Note? = addEditNoteUseCases.getNoteUseCase(noteId)
+
+                        currentNoteCreatedDate = note?.createdDate
+                        currentNoteLastModifiedDate = note?.lastModifiedDate
+
+                        _currentNotesCreatedDate2.value = note?.createdDate ?: -1
+                        _currentNotesLastModifiedDate2.value = note?.lastModifiedDate ?: -1
+
+                        oldNoteTitle = note?.title
+                        oldNoteContent = note?.content
+
                     }
                 }
             }
@@ -57,27 +87,31 @@ class AddEditNoteViewModel @Inject constructor(
         when (addEditNoteEvent) {
             is AddEditNoteEvent.EnteredTitle -> {
                 _noteTitle.value = noteTitle.value.copy(
-                    text = addEditNoteEvent.value
+                    isHintVisible = _noteTitle.value.text.isBlank(),
+                    text = addEditNoteEvent.value,
                 )
             }
 
 
             is AddEditNoteEvent.ChangeTitleFocus -> {
                 _noteTitle.value = _noteTitle.value.copy(
-                    isHintVisible = (!addEditNoteEvent.focusState.isFocused) && (_noteTitle.value.text.isBlank())
+//                    isHintVisible = (!addEditNoteEvent.focusState.isFocused) && (_noteTitle.value.text.isBlank())
+                    isHintVisible = _noteTitle.value.text.isBlank()
                 )
             }
 
             is AddEditNoteEvent.EnteredContent -> {
                 _noteContent.value = noteContent.value.copy(
-                    text = addEditNoteEvent.value
+                    isHintVisible = _noteContent.value.text.isBlank(),
+                    text = addEditNoteEvent.value,
                 )
             }
 
             is AddEditNoteEvent.ChangeContentFocus -> {
                 _noteContent.value = _noteContent.value.copy(
-                    isHintVisible = (!addEditNoteEvent.focusState.isFocused) && (_noteContent.value.text.isBlank())
+                    isHintVisible = _noteContent.value.text.isBlank()
                 )
+//                    isHintVisible = (!addEditNoteEvent.focusState.isFocused) && (_noteContent.value.text.isBlank())
             }
 
             AddEditNoteEvent.SaveNote -> {
@@ -88,8 +122,21 @@ class AddEditNoteViewModel @Inject constructor(
                                 id = currentNoteId,
                                 title = _noteTitle.value.text,
                                 content = _noteContent.value.text,
-                                createdDate = System.currentTimeMillis(),
-                                lastModifiedDate = System.currentTimeMillis()
+                                createdDate = currentNoteCreatedDate ?: System.currentTimeMillis(),
+                                lastModifiedDate =
+                                if (currentNoteId == null) {
+                                    System.currentTimeMillis()
+                                } else {
+                                    if (hasNoteContentChanged(
+                                            oldNoteTitle = oldNoteTitle!!,
+                                            oldNoteContent = oldNoteContent!!
+                                        )
+                                    ) {
+                                        System.currentTimeMillis()
+                                    } else {
+                                        currentNoteLastModifiedDate!!
+                                    }
+                                }
                             )
                         )
                     } catch (e: InvalidNoteException) {
@@ -103,7 +150,28 @@ class AddEditNoteViewModel @Inject constructor(
                     addEditNoteUseCases.deleteNoteAddEditUseCase(currentNoteId!!)
                 }
             }
+
+            is AddEditNoteEvent.ShareNote -> {
+                viewModelScope.launch {
+                    addEditNoteUseCases.shareNoteUseCase(
+                        addEditNoteEvent.context,
+                        Note(
+                            title = _noteTitle.value.text,
+                            content = _noteContent.value.text,
+                            lastModifiedDate = 1,
+                            createdDate = 1
+                        )
+                    )
+                }
+            }
         }
+    }
+
+    private fun hasNoteContentChanged(oldNoteTitle: String, oldNoteContent: String): Boolean {
+        if ((oldNoteTitle == _noteTitle.value.text) && (oldNoteContent == _noteContent.value.text)) {
+            return false
+        }
+        return true
     }
 
 }

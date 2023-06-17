@@ -2,6 +2,8 @@ package com.ayushsinghal.notes.feature.notes.presentation.all_notes
 
 import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
@@ -9,12 +11,14 @@ import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
@@ -32,11 +36,14 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -67,73 +74,69 @@ fun AllNotesScreen(
     val scope = rememberCoroutineScope()
 
     Scaffold(
+//                viewModel.onEvent(NotesEvent.ToggleOrderSection)
+        topBar = { TopBar(onSortButtonPressed = {viewModel.onEvent(NotesEvent.ToggleOrderSection)}) },
         snackbarHost = { SnackbarHost(SnackbarHostState()) },
         floatingActionButton = { MyFloatingActionButton(navController = navController) }
     ) { paddingValues ->
 
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
+        Box(modifier = Modifier
+            .fillMaxSize()
+            .padding(paddingValues)
         ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = "Your Notes",
-                    style = MaterialTheme.typography.headlineLarge,
-                    modifier = Modifier.clickable { Log.d(TAG, "Clicked on Your Notes") }
-                )
 
-                IconButton(onClick = {
-                    viewModel.onEvent(NotesEvent.ToggleOrderSection)
-                }) {
-                    Icon(imageVector = Icons.Default.Sort, contentDescription = "Sort")
+            val offsetYOfOrderSection by animateDpAsState(
+                targetValue = if (state.isOrderSectionVisible) 0.dp else (-30).dp,
+                animationSpec = tween(durationMillis = 300), label = ""
+            )
+
+            val offsetYOfLazyStaggeredGrid by animateDpAsState(
+                targetValue = if (state.isOrderSectionVisible) 124.dp else 0.dp,
+                animationSpec = tween(durationMillis = 300), label = ""
+            )
+
+            // Order section
+            OrderSection(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 16.dp)
+                    .alpha(if (state.isOrderSectionVisible) 1f else 0f)
+                    .offset(y = offsetYOfOrderSection),
+                noteOrder = state.noteOrder,
+                onOrderChange = {
+                    viewModel.onEvent(NotesEvent.Order(it))
                 }
-            }
+            )
 
-
-            AnimatedVisibility(
-                visible = state.isOrderSectionVisible,
-                enter = fadeIn() + slideInVertically(),
-                exit = fadeOut() + slideOutVertically()
-            ) {
-                OrderSection(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 16.dp),
-                    noteOrder = state.noteOrder,
-                    onOrderChange = {
-                        viewModel.onEvent(NotesEvent.Order(it))
-                    }
-                )
-            }
-
-            Spacer(modifier = Modifier.height(16.dp))
-
+            // Notes grid
             LazyVerticalStaggeredGrid(
                 columns = StaggeredGridCells.Fixed(2),
                 modifier = Modifier
                     .fillMaxSize()
-            )
-            {
-                items(state.notes)
-                {
+                    .offset(y = offsetYOfLazyStaggeredGrid)
+            ) {
+                items(state.notes) { note ->
                     NoteItem(
                         modifier = Modifier
                             .fillMaxWidth()
+                            .padding(10.dp)
                             .clickable {
-                                Log.d(TAG, "id: ${it.id}")
-                                navController.navigate(
-                                    Screen.AddEditNoteScreen.route +
-                                            "?noteId=${it.id}"
-                                )
+//                                Log.d(TAG, "id: ${note.id}")
+//                                navController.navigate(
+//                                    Screen.AddEditNoteScreen.route +
+//                                            "?noteId=${note.id}"
+//                                )
                             },
-                        note = it,
+                        note = note,
+                        onClick = {
+                            Log.d(TAG, "id: ${note.id}")
+                            navController.navigate(
+                                Screen.AddEditNoteScreen.route +
+                                        "?noteId=${note.id}"
+                            )
+                        },
                         onDeleteClick = {
-                            viewModel.onEvent(NotesEvent.DeleteNote(it))
+                            viewModel.onEvent(NotesEvent.DeleteNote(note))
 
                             scope.launch {
                                 val result = snackBarHostState.showSnackbar(
@@ -151,7 +154,6 @@ fun AllNotesScreen(
             }
         }
     }
-
 }
 
 @Composable
@@ -160,9 +162,49 @@ fun MyFloatingActionButton(
 ) {
     FloatingActionButton(onClick = {
         navController.navigate(Screen.AddEditNoteScreen.route)
-    }) {
+    }
+    ) {
         Icon(imageVector = Icons.Default.Create, contentDescription = "Add Note")
     }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun TopBar(
+    onSortButtonPressed: () -> Unit
+) {
+//    Column(
+//        modifier = Modifier
+//    ) {
+//        Row(
+//            modifier = Modifier.fillMaxWidth(),
+//            horizontalArrangement = Arrangement.SpaceBetween,
+//            verticalAlignment = Alignment.CenterVertically
+//        ) {
+//            Text(
+//                text = "Your Notes",
+//                style = MaterialTheme.typography.headlineLarge,
+//                modifier = Modifier.clickable { Log.d(TAG, "Clicked on Your Notes") }
+//            )
+//
+//            IconButton(onClick = {
+//                onSortButtonPressed()
+//            }) {
+//                Icon(imageVector = Icons.Default.Sort, contentDescription = "Sort")
+//            }
+//        }
+//    }
+
+    TopAppBar(
+        title = {
+            Text(text = "Your Notes")
+        },
+actions = {
+    IconButton(onClick = { onSortButtonPressed() }) {
+        Icon(imageVector = Icons.Default.Sort, contentDescription = "Sort")
+    }
+}
+    )
 }
 
 @Preview(showSystemUi = true)

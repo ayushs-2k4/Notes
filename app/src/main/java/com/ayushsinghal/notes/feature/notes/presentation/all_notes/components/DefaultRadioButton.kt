@@ -1,5 +1,6 @@
 package com.ayushsinghal.notes.feature.notes.presentation.all_notes.components
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.width
@@ -30,8 +31,8 @@ fun DefaultRadioButton(
     }
 }
 
-//@Preview(showSystemUi = true)
-//@Composable
-//fun DefaultRadioButtonPreview() {
-//    DefaultRadioButton(text = "Ayush",selected = false, onCheck = {})
-//}
+@Preview(showSystemUi = true)
+@Composable
+fun DefaultRadioButtonPreview() {
+    DefaultRadioButton(text = "Ayush",selected = false, onCheck = {})
+}
