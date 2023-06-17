@@ -1,24 +1,20 @@
 package com.ayushsinghal.notes.feature.notes.presentation.add_edit_note
 
-import android.content.DialogInterface
+import android.util.Log
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.navigation.NavController
-import com.ayushsinghal.notes.R
+import com.ayushsinghal.notes.feature.authentication.presentation.signin.TAG
 import com.ayushsinghal.notes.feature.notes.domain.model.InvalidNoteException
 import com.ayushsinghal.notes.feature.notes.domain.model.Note
 import com.ayushsinghal.notes.feature.notes.domain.usecase.add_edit_note.AddEditNoteUseCases
-import com.ayushsinghal.notes.feature.notes.domain.usecase.add_edit_note.GetNoteUseCase
 import com.ayushsinghal.notes.feature.notes.domain.usecase.all_notes.NoteUseCases
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import com.google.firebase.auth.ktx.auth
-import com.google.firebase.ktx.Firebase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -41,6 +37,9 @@ class AddEditNoteViewModel @Inject constructor(
 
     private val _currentNotesLastModifiedDate2 = mutableStateOf<Long>(-1)
     val currentNotesLastModifiedDate2: State<Long> = _currentNotesLastModifiedDate2
+
+    private val _tagsLiveData = MutableStateFlow<List<String>>(emptyList())
+    val tagsLiveData: Flow<List<String>> = _tagsLiveData
 
     private var currentNoteId: Int? = null
     private var currentNoteCreatedDate: Long? = null
@@ -84,6 +83,7 @@ class AddEditNoteViewModel @Inject constructor(
                         oldNoteTitle = note?.title
                         oldNoteContent = note?.content
 
+                        _tagsLiveData.value = note?.tags ?: emptyList()
                     }
                 }
             }
@@ -128,6 +128,7 @@ class AddEditNoteViewModel @Inject constructor(
                                 id = currentNoteId,
                                 title = _noteTitle.value.text,
                                 content = _noteContent.value.text,
+                                tags = _tagsLiveData.value,
                                 createdDate = currentNoteCreatedDate ?: System.currentTimeMillis(),
                                 lastModifiedDate =
                                 if (currentNoteId == null) {
@@ -169,20 +170,50 @@ class AddEditNoteViewModel @Inject constructor(
                         note = Note(
                             title = _noteTitle.value.text,
                             content = _noteContent.value.text,
+                            tags = emptyList(),
                             lastModifiedDate = 1,
                             createdDate = 1
                         )
                     )
                 }
             }
+
+            is AddEditNoteEvent.OnChipClick -> { // If clicked on existing chip
+                if (addEditNoteEvent.type == "Update") {
+                    Log.d(TAG, "NoteID: $currentNoteId")
+                    Log.d(TAG, "index: ${addEditNoteEvent.index}")
+                    if ((addEditNoteEvent.tag.isNotEmpty())) {
+                        val updatedList = _tagsLiveData.value.mapIndexed { index, value ->
+                            if (index == addEditNoteEvent.index) {
+                                // Update the value at the target index
+                                // You can modify the value here as per your requirements
+                                addEditNoteEvent.tag
+                            } else {
+                                value
+                            }
+                        }
+                        _tagsLiveData.value = updatedList
+                        Log.d(TAG, "attested: ${_tagsLiveData.value[addEditNoteEvent.index]}")
+                    }
+                } else if (addEditNoteEvent.type == "Delete") {
+                    val updatedList = _tagsLiveData.value.filterIndexed { index, _ ->
+                        index != addEditNoteEvent.index
+                    }
+                    _tagsLiveData.value = updatedList
+                }
+            }
+
+            is AddEditNoteEvent.OnPlusTagButtonClick -> { // If clicked on plus button to add new tag
+                Log.d(TAG, "NoteID: $currentNoteId")
+                if (addEditNoteEvent.tag.isNotEmpty()) {
+                    _tagsLiveData.value = _tagsLiveData.value + addEditNoteEvent.tag
+                }
+            }
         }
     }
 
     private fun hasNoteContentChanged(oldNoteTitle: String, oldNoteContent: String): Boolean {
-        if ((oldNoteTitle == _noteTitle.value.text) && (oldNoteContent == _noteContent.value.text)) {
-            return false
-        }
-        return true
+        return !((oldNoteTitle == _noteTitle.value.text) && (oldNoteContent == _noteContent.value.text))
     }
 
 }

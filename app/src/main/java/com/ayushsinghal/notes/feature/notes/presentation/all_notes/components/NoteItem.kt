@@ -108,6 +108,7 @@ fun NoteItemPreview() {
         Note(
             title = "Title",
             content = "Content Content Content Content Content Content Content Content Content Content Content Content Content Content Content Content Content Content Content Content Content ",
+            tags = emptyList(),
             lastModifiedDate = 2,
             createdDate = 1
         ),

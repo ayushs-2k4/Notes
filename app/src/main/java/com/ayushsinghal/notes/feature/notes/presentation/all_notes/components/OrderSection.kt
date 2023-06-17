@@ -11,9 +11,9 @@ import com.ayushsinghal.notes.feature.notes.util.OrderType
 
 @Composable
 fun OrderSection(
+    modifier: Modifier = Modifier,
     noteOrder: NoteOrder = NoteOrder.LastModifiedDate(OrderType.Descending),
-    onOrderChange: (NoteOrder) -> Unit,
-    modifier: Modifier = Modifier
+    onOrderChange: (NoteOrder) -> Unit
 ) {
     Column(
         modifier = modifier

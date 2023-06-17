@@ -2,9 +2,6 @@
 <project version="4">
   <component name="deploymentTargetDropDown">
     <value>
-      <entry key="AddEditNoteScreenPreview">
-        <State />
-      </entry>
       <entry key="AllNotesScreenPreview">
         <State />
       </entry>
@@ -12,6 +9,9 @@
         <State />
       </entry>
       <entry key="OrderSectionPreview">
+        <State />
+      </entry>
+      <entry key="TagsColumnPreview">
         <State />
       </entry>
       <entry key="TransparentHintTextFieldPreview">

@@ -13,6 +13,7 @@ import com.ayushsinghal.notes.feature.notes.domain.repository.NoteRepository
 import com.ayushsinghal.notes.feature.notes.domain.usecase.add_edit_note.AddEditNoteUseCases
 import com.ayushsinghal.notes.feature.notes.domain.usecase.add_edit_note.DeleteNoteAddEditUseCase
 import com.ayushsinghal.notes.feature.notes.domain.usecase.add_edit_note.GetNoteUseCase
+import com.ayushsinghal.notes.feature.notes.domain.usecase.add_edit_note.OnChipClickAddEditUseCase
 import com.ayushsinghal.notes.feature.notes.domain.usecase.add_edit_note.ShareNoteAddEditUseCase
 import com.ayushsinghal.notes.feature.notes.domain.usecase.all_notes.AddNoteUseCase
 import com.ayushsinghal.notes.feature.notes.domain.usecase.all_notes.DeleteNoteUseCase
@@ -70,7 +71,8 @@ object NotesModule {
         return AddEditNoteUseCases(
             deleteNoteAddEditUseCase = DeleteNoteAddEditUseCase(noteRepository),
             getNoteUseCase = GetNoteUseCase(noteRepository),
-            shareNoteUseCase = ShareNoteAddEditUseCase()
+            shareNoteUseCase = ShareNoteAddEditUseCase(),
+            onChipClickAddEditUseCase = OnChipClickAddEditUseCase()
         )
     }
 }

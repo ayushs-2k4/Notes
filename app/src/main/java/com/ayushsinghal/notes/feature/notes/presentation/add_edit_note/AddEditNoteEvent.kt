@@ -16,7 +16,11 @@ sealed class AddEditNoteEvent {
     object SaveNote : AddEditNoteEvent()
 
     //    object DeleteNote : AddEditNoteEvent()
-    data class DeleteNote(val context: Context,val navController: NavController) : AddEditNoteEvent()
+    data class DeleteNote(val context: Context, val navController: NavController) :
+        AddEditNoteEvent()
 
     data class ShareNote(val context: Context) : AddEditNoteEvent()
+
+    data class OnChipClick(val type: String, val index: Int, val tag: String) : AddEditNoteEvent()
+    class OnPlusTagButtonClick(val tag: String) : AddEditNoteEvent()
 }

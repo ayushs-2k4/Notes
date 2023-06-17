@@ -1,26 +1,25 @@
 package com.ayushsinghal.notes.feature.notes.presentation.add_edit_note
 
-import android.content.Context
-import android.content.DialogInterface
 import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.IosShare
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Share
-import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.AssistChip
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -30,33 +29,21 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
-import androidx.room.Room
-import com.ayushsinghal.notes.feature.notes.data.local.NoteDatabase
-import com.ayushsinghal.notes.feature.notes.data.repository.NoteRepositoryImpl
-import com.ayushsinghal.notes.feature.notes.domain.usecase.add_edit_note.AddEditNoteUseCases
-import com.ayushsinghal.notes.feature.notes.domain.usecase.add_edit_note.DeleteNoteAddEditUseCase
-import com.ayushsinghal.notes.feature.notes.domain.usecase.add_edit_note.GetNoteUseCase
-import com.ayushsinghal.notes.feature.notes.domain.usecase.all_notes.AddNoteUseCase
-import com.ayushsinghal.notes.feature.notes.domain.usecase.all_notes.DeleteNoteUseCase
-import com.ayushsinghal.notes.feature.notes.domain.usecase.all_notes.GetNotesUseCase
-import com.ayushsinghal.notes.feature.notes.domain.usecase.all_notes.NoteUseCases
+import com.ayushsinghal.notes.feature.notes.presentation.add_edit_note.components.TagInputDialog
 import com.ayushsinghal.notes.feature.notes.presentation.add_edit_note.components.TransparentHintTextField
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -71,17 +58,55 @@ fun AddEditNoteScreen(
 
     val context = LocalContext.current
 
-//    val coroutineScope = rememberCoroutineScope()
-
     val titleState = viewModel.noteTitle.value
     val contentState = viewModel.noteContent.value
 
     val createdDate by remember { mutableStateOf(viewModel.currentNotesCreatedDate2) }
     val lastModifiedDate by remember { mutableStateOf(viewModel.currentNotesLastModifiedDate2) }
 
+    val myTagsList by viewModel.tagsLiveData.collectAsState(initial = emptyList())
+
+    val showDialog = remember { mutableStateOf(false) }
+    val tagIndex = remember { mutableStateOf(-1) }
+
     BackHandler {
         viewModel.onEvent(AddEditNoteEvent.SaveNote)
         navController.popBackStack()
+    }
+
+    if (showDialog.value) {
+        TagInputDialog(
+            isNewTag = tagIndex.value == -1,  // To check if clicked on new tag or existing tag
+            tagText = if (tagIndex.value == -1) {
+                ""
+            } else {
+                myTagsList[tagIndex.value]
+            },
+            onClickAddOrUpdateTag = {
+                if (tagIndex.value == -1) {
+                    viewModel.onEvent(AddEditNoteEvent.OnPlusTagButtonClick(tag = it))
+                } else {
+                    viewModel.onEvent(
+                        AddEditNoteEvent.OnChipClick(
+                            type = "Update",
+                            index = tagIndex.value,
+                            tag = it
+                        )
+                    )
+                }
+                showDialog.value = false
+                tagIndex.value = -1
+            }, onClickCancelOrDelete = {
+                viewModel.onEvent(
+                    AddEditNoteEvent.OnChipClick(
+                        type = "Delete",
+                        index = tagIndex.value,
+                        tag = "random"
+                    )
+                )
+                showDialog.value = false
+                tagIndex.value = -1
+            })
     }
 
     Scaffold(
@@ -94,22 +119,25 @@ fun AddEditNoteScreen(
         bottomBar = {
             BottomBar(
                 onClickDelete = {
-//                                viewModel.onEvent(AddEditNoteEvent.DeleteNote(context))
                     viewModel.viewModelScope.launch {
-                        viewModel.onEvent(AddEditNoteEvent.DeleteNote(context=context,navController=navController))
+                        viewModel.onEvent(
+                            AddEditNoteEvent.DeleteNote(
+                                context = context,
+                                navController = navController
+                            )
+                        )
                         navController.popBackStack()
                     }
                 },
                 onClickShare = {
                     viewModel.viewModelScope.launch {
-                    viewModel.onEvent(AddEditNoteEvent.ShareNote(context))
+                        viewModel.onEvent(AddEditNoteEvent.ShareNote(context))
                     }
                 },
                 onClickMenu = {}
             )
         }
     ) { paddingValues ->
-        paddingValues;
 
         Column(
             modifier = Modifier
@@ -119,6 +147,15 @@ fun AddEditNoteScreen(
                 .verticalScroll(rememberScrollState()),
 
             ) {
+
+            TagsColumn(tagsList = myTagsList, onAddTagButtonClick = {
+                showDialog.value = true
+            },
+                onClick = {
+                    tagIndex.value = it
+                    showDialog.value = true
+                }
+            )
 
             TransparentHintTextField(
                 text = titleState.text,
@@ -191,12 +228,6 @@ fun TopBar(
             }
         },
         actions = {
-//            IconButton(onClick = {
-//                viewModel.onEvent(AddEditNoteEvent.DeleteNote)
-//                navController.popBackStack()
-//            }) {
-//                Icon(imageVector = Icons.Default.Delete, contentDescription = "Delete Note")
-//            }
         }
     )
 }
@@ -229,6 +260,38 @@ fun BottomBar(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
+@Composable
+fun TagsColumn(
+    tagsList: List<String>,
+    onAddTagButtonClick: () -> Unit,
+    onClick: (index: Int) -> Unit,
+) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically
+    )
+    {
+        LazyRow()
+        {
+            items(tagsList.size)
+            { index ->
+                AssistChip(
+                    onClick = { onClick(index) },
+                    label = { Text(text = tagsList[index]) },
+                    modifier = Modifier
+                        .padding(horizontal = 5.dp)
+                )
+            }
+
+            item {
+                IconButton(onClick = { onAddTagButtonClick() }) {
+                    Icon(imageVector = Icons.Default.Add, contentDescription = "Add Tag")
+                }
+            }
+        }
+    }
+}
+
 //@Preview(showSystemUi = true)
 //@Composable
 //fun AddEditNoteScreenPreview() {
@@ -252,16 +315,20 @@ fun BottomBar(
 //
 //    val addEditNoteUseCases = AddEditNoteUseCases(
 //        deleteNoteAddEditUseCase = DeleteNoteAddEditUseCase(noteRepository),
-//        getNoteUseCase = GetNoteUseCase(noteRepository)
+//        getNoteUseCase = GetNoteUseCase(noteRepository),
+//        shareNoteUseCase = ShareNoteAddEditUseCase()
 //    )
 //
 //    val addEditNoteViewModel = AddEditNoteViewModel(
 //        noteUseCases = noteUseCases,
 //        addEditNoteUseCases = addEditNoteUseCases,
-//       savedStateHandle =  SavedStateHandle(),
+//        savedStateHandle = SavedStateHandle(),
 //    )
 //
-//    AddEditNoteScreen(navController = NavController(LocalContext.current), viewModel = addEditNoteViewModel)
+//    AddEditNoteScreen(
+//        navController = NavController(LocalContext.current),
+//        viewModel = addEditNoteViewModel
+//    )
 //}
 
 //@Preview
@@ -302,15 +369,22 @@ fun BottomBar(
 //    )
 //}
 
-@Preview
-@Composable
-fun BottomBarPreview() {
-    BottomBar(
-        onClickDelete = {},
-        onClickShare = {},
-        onClickMenu = {}
-    )
-}
+//@Preview
+//@Composable
+//fun BottomBarPreview() {
+//    BottomBar(
+//        onClickDelete = {},
+//        onClickShare = {},
+//        onClickMenu = {}
+//    )
+//}
+
+//@Preview(showSystemUi = true)
+//@Composable
+//fun TagsColumnPreview() {
+//
+//    TagsColumn(tagsList = tagsList, onAddTagButtonClick = {}, onClick = {})
+//}
 
 private fun convertTimestampToDate(timestamp: Long): String {
 //    val format = SimpleDateFormat("yyyy-MM-dd h:mm:ss a", Locale.getDefault())
