@@ -34,13 +34,14 @@ import dagger.hilt.android.AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        WindowCompat.setDecorFitsSystemWindows(window, false)
-        val windowInsetsController =
-            ViewCompat.getWindowInsetsController(window.decorView)
-//        window.statusBarColor = (Color.Blue.toArgb())
-//        window.navigationBarColor = (Color.Transparent.toArgb())
 
-        windowInsetsController?.isAppearanceLightNavigationBars = true
+
+        WindowCompat.setDecorFitsSystemWindows(window, false)
+//        val windowInsetsController =
+//            ViewCompat.getWindowInsetsController(window.decorView)
+//        windowInsetsController?.isAppearanceLightNavigationBars = true
+        
+
         setContent {
             NotesTheme {
                 // A surface container using the 'background' color from the theme

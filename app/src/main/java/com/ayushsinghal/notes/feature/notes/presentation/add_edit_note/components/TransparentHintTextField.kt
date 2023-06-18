@@ -1,82 +1,64 @@
 package com.ayushsinghal.notes.feature.notes.presentation.add_edit_note.components
 
-import android.content.Context
-import android.content.res.Configuration
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.text.BasicTextField
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextFieldColors
+import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusState
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
 
 @Composable
 fun TransparentHintTextField(
-    text: String,
+    givenText: String,
     hint: String,
     modifier: Modifier = Modifier,
-    isHintVisible: Boolean = true,
     onValueChange: (String) -> Unit,
     textStyle: TextStyle = TextStyle(),
-    isSingleLine: Boolean = false,
+    singleLine: Boolean = false,
     onFocusChange: (FocusState) -> Unit
 ) {
-    Box(modifier = modifier)
-    {
-        BasicTextField(
-            value = text,
-            onValueChange = onValueChange,
-            modifier = modifier
-                .fillMaxWidth()
-                .onFocusChanged {
-                    onFocusChange(it)
-                },
-            textStyle = textStyle.copy(
-                color = MaterialTheme.colorScheme.onSurface
-//                    if(isUsingNightModeResources())
-//                    {
-////                        Color.White
-//                        MaterialTheme.colorScheme.onSurface
-//                    }else{
-////                        Color.Black
-//                        MaterialTheme.colorScheme.onSurface
-//                    }
-            ),
-            singleLine = isSingleLine,
-        )
+    val textFieldColors = TextFieldDefaults.colors(
+        focusedIndicatorColor = Color.Transparent,
+        unfocusedIndicatorColor = Color.Transparent,
+        disabledIndicatorColor = Color.Transparent,
+        errorIndicatorColor = Color.Transparent,
+        disabledTextColor = Color.Black.copy(),
+        focusedContainerColor = Color.Transparent,
+        unfocusedContainerColor = Color.Transparent,
+    )
 
-        if (isHintVisible) {
+    TextField(
+        value = givenText,
+        onValueChange = onValueChange,
+        singleLine = singleLine,
+        textStyle = textStyle,
+        colors = textFieldColors,
+        modifier = modifier
+            .fillMaxWidth()
+            .onFocusChanged {
+                onFocusChange(it)
+            },
+        placeholder = {
             Text(
                 text = hint,
-                style = textStyle,
-                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
-//                color = Color.White
+                style = textStyle
             )
         }
-    }
-}
-
-
-@Composable
-private fun isUsingNightModeResources(context: Context = LocalContext.current): Boolean {
-    return when (context.resources.configuration.uiMode and
-            Configuration.UI_MODE_NIGHT_MASK) {
-        Configuration.UI_MODE_NIGHT_YES -> true
-        Configuration.UI_MODE_NIGHT_NO -> false
-        Configuration.UI_MODE_NIGHT_UNDEFINED -> false
-        else -> false
-    }
+    )
 }
 
 @Preview(showSystemUi = true)
 @Composable
 fun TransparentHintTextFieldPreview() {
-    TransparentHintTextField(text = "Text", hint = "Hint", onValueChange = {}, onFocusChange = {})
+    TransparentHintTextField(
+        givenText = "Text",
+        hint = "Hint",
+        onValueChange = {},
+        onFocusChange = {}
+    )
 }

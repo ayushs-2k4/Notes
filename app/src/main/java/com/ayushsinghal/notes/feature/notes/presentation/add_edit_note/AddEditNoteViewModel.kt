@@ -26,10 +26,12 @@ class AddEditNoteViewModel @Inject constructor(
 ) : ViewModel() {
 
     // Here we are not taking complete screen as one state just like in All Notes Screen, because whenever the text of title ot content or anything will change, the whole screen will be re-composed
-    private val _noteTitle = mutableStateOf<NoteTextFieldState>(NoteTextFieldState(hint = "Title"))
+    private val _noteTitle =
+        mutableStateOf<NoteTextFieldState>(NoteTextFieldState(hint = "Title Test Hint"))
     val noteTitle: State<NoteTextFieldState> = _noteTitle
 
-    private val _noteContent = mutableStateOf<NoteTextFieldState>(NoteTextFieldState(hint = "Note"))
+    private val _noteContent =
+        mutableStateOf<NoteTextFieldState>(NoteTextFieldState(hint = "Note Test Hint"))
     val noteContent: State<NoteTextFieldState> = _noteContent
 
     private val _currentNotesCreatedDate2 = mutableStateOf<Long>(-1)
@@ -41,7 +43,7 @@ class AddEditNoteViewModel @Inject constructor(
     private val _tagsLiveData = MutableStateFlow<List<String>>(emptyList())
     val tagsLiveData: Flow<List<String>> = _tagsLiveData
 
-     var currentNoteId: Int? = null
+    var currentNoteId: Int? = null
     private var currentNoteCreatedDate: Long? = null
     private var currentNoteLastModifiedDate: Long? = null
     private var oldNoteTitle: String? = null
@@ -52,23 +54,39 @@ class AddEditNoteViewModel @Inject constructor(
             ?.let { noteId -> // If we clicked on a current Note to edit it
                 if (noteId != -1) { // Because New Note will have initial id as -1
                     viewModelScope.launch {
-                        addEditNoteUseCases.getNoteUseCase(noteId)?.also { note ->
-                            currentNoteId = noteId
-                            _noteTitle.value = noteTitle.value.copy(
-//                                isHintVisible =  _noteTitle.value.text.isBlank(),
-                                isHintVisible = note.title.isBlank(),
-                                text = note.title,
-                            )
-//                                val myBool =  note.content.isBlank()
+//                        addEditNoteUseCases.getNoteUseCase(noteId)?.also { note ->
+//                            currentNoteId = noteId
+//                            _noteTitle.value = noteTitle.value.copy(
+//                                text = note.title,
+//                            )
+//
+//                            _noteContent.value = noteContent.value.copy(
+//                                text = note.content,
+//                            )
+//                            Log.d(TAG, " _noteTitle.value: ${_noteTitle.value.text}")
+//                            Log.d(TAG, " note.title: ${note.title}")
+//                        }
 
-                            _noteContent.value = noteContent.value.copy(
-//                                isHintVisible = _noteContent.value.text.isBlank(),
-                                isHintVisible = note.content.isBlank(),
-//                                isHintVisible = myBool,
-                                text = note.content,
+                        addEditNoteUseCases.getNoteUseCase(noteId)?.also { note ->
+                            currentNoteId = note.id
+                            _noteTitle.value = noteTitle.value.copy(
+                                text = note.title,
+//                                isHintVisible = false
                             )
+                            _noteContent.value = _noteContent.value.copy(
+                                text = note.content,
+//                                isHintVisible = false
+                            )
+//                            _noteColor.value = note.color
                         }
+
+//                        val note = addEditNoteUseCases.getNoteUseCase(noteId)!!
+//
+//                        currentNoteId = note.id
+//                        _noteTitle.value = noteTitle.value.copy(text = note.title)
+//                        _noteContent.value = noteContent.value.copy(text = note.content)
                     }
+
 
                     viewModelScope.launch {
 
@@ -93,7 +111,7 @@ class AddEditNoteViewModel @Inject constructor(
         when (addEditNoteEvent) {
             is AddEditNoteEvent.EnteredTitle -> {
                 _noteTitle.value = noteTitle.value.copy(
-                    isHintVisible = _noteTitle.value.text.isBlank(),
+//                    isHintVisible = _noteTitle.value.text.isBlank(),
                     text = addEditNoteEvent.value,
                 )
             }
@@ -102,20 +120,20 @@ class AddEditNoteViewModel @Inject constructor(
             is AddEditNoteEvent.ChangeTitleFocus -> {
                 _noteTitle.value = _noteTitle.value.copy(
 //                    isHintVisible = (!addEditNoteEvent.focusState.isFocused) && (_noteTitle.value.text.isBlank())
-                    isHintVisible = _noteTitle.value.text.isBlank()
+//                    isHintVisible = _noteTitle.value.text.isBlank()
                 )
             }
 
             is AddEditNoteEvent.EnteredContent -> {
                 _noteContent.value = noteContent.value.copy(
-                    isHintVisible = _noteContent.value.text.isBlank(),
+//                    isHintVisible = _noteContent.value.text.isBlank(),
                     text = addEditNoteEvent.value,
                 )
             }
 
             is AddEditNoteEvent.ChangeContentFocus -> {
                 _noteContent.value = _noteContent.value.copy(
-                    isHintVisible = _noteContent.value.text.isBlank()
+//                    isHintVisible = _noteContent.value.text.isBlank()
                 )
 //                    isHintVisible = (!addEditNoteEvent.focusState.isFocused) && (_noteContent.value.text.isBlank())
             }

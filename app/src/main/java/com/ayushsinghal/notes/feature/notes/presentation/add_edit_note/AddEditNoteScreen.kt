@@ -175,7 +175,7 @@ fun AddEditNoteScreen(
             )
 
             TransparentHintTextField(
-                text = titleState.text,
+                givenText = titleState.text,
                 hint = titleState.hint,
                 onValueChange = {
                     viewModel.onEvent(AddEditNoteEvent.EnteredTitle(it))
@@ -183,14 +183,11 @@ fun AddEditNoteScreen(
                 onFocusChange = {
                     viewModel.onEvent(AddEditNoteEvent.ChangeTitleFocus(it))
                 },
-                isHintVisible = titleState.isHintVisible,
                 textStyle = MaterialTheme.typography.headlineLarge
             )
 
-            Spacer(modifier = Modifier.height(16.dp))
-
             TransparentHintTextField(
-                text = contentState.text,
+                givenText = contentState.text,
                 hint = contentState.hint,
                 onValueChange = {
                     viewModel.onEvent(AddEditNoteEvent.EnteredContent(it))
@@ -198,8 +195,7 @@ fun AddEditNoteScreen(
                 onFocusChange = {
                     viewModel.onEvent(AddEditNoteEvent.ChangeContentFocus(it))
                 },
-                isHintVisible = contentState.isHintVisible,
-                textStyle = MaterialTheme.typography.bodyMedium,
+                textStyle = MaterialTheme.typography.bodyMedium
             )
 
             Spacer(modifier = Modifier.height(50.dp))
@@ -212,7 +208,7 @@ fun AddEditNoteScreen(
                 )
             )
 
-            Spacer(modifier = Modifier.height(10.dp))
+            Spacer(modifier = Modifier.height(5.dp))
 
             Text(
                 text = "Updated: ${convertTimestampToDate(lastModifiedDate.value)}",
