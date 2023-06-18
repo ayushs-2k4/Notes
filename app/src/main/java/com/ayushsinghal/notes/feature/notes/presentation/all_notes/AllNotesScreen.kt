@@ -12,18 +12,12 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
 import androidx.compose.foundation.lazy.staggeredgrid.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Create
-import androidx.compose.material.icons.outlined.Archive
-import androidx.compose.material.icons.outlined.Delete
-import androidx.compose.material.icons.outlined.Feedback
-import androidx.compose.material.icons.outlined.Lightbulb
-import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
@@ -35,7 +29,6 @@ import androidx.compose.material3.NavigationDrawerItemDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.rememberDrawerState
@@ -46,7 +39,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -55,9 +47,9 @@ import com.ayushsinghal.notes.feature.authentication.presentation.signin.TAG
 import com.ayushsinghal.notes.feature.notes.presentation.add_edit_note.components.MySearchBar
 import com.ayushsinghal.notes.feature.notes.presentation.all_notes.components.NoteItem
 import com.ayushsinghal.notes.feature.notes.presentation.all_notes.components.OrderSection
-import com.ayushsinghal.notes.util.NavigationDrawerScreen
 import com.ayushsinghal.notes.util.Screen
 import kotlinx.coroutines.launch
+import com.ayushsinghal.notes.feature.notes.presentation.all_notes.navigation_darwer.DrawerMenuItems
 
 @Composable
 fun AllNotesScreen(
@@ -67,33 +59,8 @@ fun AllNotesScreen(
     val drawerState = rememberDrawerState(DrawerValue.Closed)
     val scope = rememberCoroutineScope()
 
-    val navigationDrawerItems = listOf(
-        NavigationDrawerItem(
-            icon = Icons.Outlined.Lightbulb,
-            label = "Notes",
-            navigationDrawerScreen = Screen.AllNotesScreen.route
-        ),
-        NavigationDrawerItem(
-            icon = Icons.Outlined.Archive,
-            label = "Archive",
-            navigationDrawerScreen = NavigationDrawerScreen.Archive.route
-        ),
-        NavigationDrawerItem(
-            icon = Icons.Outlined.Delete,
-            label = "Trash",
-            navigationDrawerScreen = NavigationDrawerScreen.Trash.route
-        ),
-        NavigationDrawerItem(
-            icon = Icons.Outlined.Settings,
-            label = "Settings",
-            navigationDrawerScreen = NavigationDrawerScreen.Settings.route
-        ),
-        NavigationDrawerItem(
-            icon = Icons.Outlined.Feedback,
-            label = "Feedback",
-            navigationDrawerScreen = NavigationDrawerScreen.Feedback.route
-        ),
-    )
+    val navigationDrawerItems = DrawerMenuItems.navigationDrawerItems
+
     val selectedItem = remember { mutableStateOf(navigationDrawerItems[0]) }
     val currentScreen = navController.currentDestination?.route
 
@@ -138,12 +105,6 @@ fun AllNotesScreen(
     }
 }
 
-data class NavigationDrawerItem(
-    val icon: ImageVector,
-    val label: String,
-    val navigationDrawerScreen: String
-)
-
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
 fun AllNotesScreenMainScreen(
@@ -152,10 +113,7 @@ fun AllNotesScreenMainScreen(
     viewModel: NotesViewModel = hiltViewModel()
 ) {
     val state = viewModel.state.value
-
-    val snackBarHostState = remember { SnackbarHostState() }
-    val scope = rememberCoroutineScope()
-
+    
     val searchResultsKey = remember { mutableStateOf(0) }
 
     Scaffold(
