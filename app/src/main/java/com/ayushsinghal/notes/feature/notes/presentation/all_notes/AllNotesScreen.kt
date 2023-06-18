@@ -66,9 +66,6 @@ fun AllNotesScreen(
 ) {
     val drawerState = rememberDrawerState(DrawerValue.Closed)
     val scope = rememberCoroutineScope()
-// icons to mimic drawer destinations
-//    val drawerItems = listOf(Icons.Default.Favorite, Icons.Default.Face, Icons.Default.Email)
-//    val selectedItem = remember { mutableStateOf(drawerItems[0]) }
 
     val navigationDrawerItems = listOf(
         NavigationDrawerItem(

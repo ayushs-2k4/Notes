@@ -87,23 +87,10 @@ class NotesViewModel @Inject constructor(
                                     )
                                 }
                     }
-
                     _state.value = state.value.copy(notes = filteredNotes)
                 } else {
                     _state.value = _state.value.copy(notes = originalNotes)
                 }
-
-//                Log.d(TAG, "Nope")
-//                if (notesEvent.query.isNotEmpty()) {
-//                    Log.d(TAG, "Yep")
-//                    viewModelScope.launch {
-//                        Log.d(TAG, "Nope")
-//                        _state.value =
-//                            _state.value.copy(notes = noteUseCases.searchNotesUseCase(notesEvent.query))
-//                    }
-//                } else {
-//                    _state.value = _state.value.copy(notes = originalNotes)
-//                }
             }
         }
     }
