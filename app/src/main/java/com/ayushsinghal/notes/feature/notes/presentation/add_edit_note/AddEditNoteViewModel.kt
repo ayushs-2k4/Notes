@@ -48,43 +48,22 @@ class AddEditNoteViewModel @Inject constructor(
     private var currentNoteLastModifiedDate: Long? = null
     private var oldNoteTitle: String? = null
     private var oldNoteContent: String? = null
+    private var oldNoteTagsList: List<String>? = null
 
     init {
         savedStateHandle.get<Int>("noteId")
             ?.let { noteId -> // If we clicked on a current Note to edit it
                 if (noteId != -1) { // Because New Note will have initial id as -1
                     viewModelScope.launch {
-//                        addEditNoteUseCases.getNoteUseCase(noteId)?.also { note ->
-//                            currentNoteId = noteId
-//                            _noteTitle.value = noteTitle.value.copy(
-//                                text = note.title,
-//                            )
-//
-//                            _noteContent.value = noteContent.value.copy(
-//                                text = note.content,
-//                            )
-//                            Log.d(TAG, " _noteTitle.value: ${_noteTitle.value.text}")
-//                            Log.d(TAG, " note.title: ${note.title}")
-//                        }
-
                         addEditNoteUseCases.getNoteUseCase(noteId)?.also { note ->
                             currentNoteId = note.id
                             _noteTitle.value = noteTitle.value.copy(
                                 text = note.title,
-//                                isHintVisible = false
                             )
                             _noteContent.value = _noteContent.value.copy(
                                 text = note.content,
-//                                isHintVisible = false
                             )
-//                            _noteColor.value = note.color
                         }
-
-//                        val note = addEditNoteUseCases.getNoteUseCase(noteId)!!
-//
-//                        currentNoteId = note.id
-//                        _noteTitle.value = noteTitle.value.copy(text = note.title)
-//                        _noteContent.value = noteContent.value.copy(text = note.content)
                     }
 
 
@@ -100,6 +79,8 @@ class AddEditNoteViewModel @Inject constructor(
 
                         oldNoteTitle = note?.title
                         oldNoteContent = note?.content
+
+                        oldNoteTagsList = note?.tags
 
                         _tagsLiveData.value = note?.tags ?: emptyList()
                     }
@@ -154,7 +135,8 @@ class AddEditNoteViewModel @Inject constructor(
                                 } else {
                                     if (hasNoteContentChanged(
                                             oldNoteTitle = oldNoteTitle!!,
-                                            oldNoteContent = oldNoteContent!!
+                                            oldNoteContent = oldNoteContent!!,
+                                            oldNoteTagsList = oldNoteTagsList!!
                                         )
                                     ) {
                                         System.currentTimeMillis()
@@ -233,8 +215,12 @@ class AddEditNoteViewModel @Inject constructor(
         }
     }
 
-    private fun hasNoteContentChanged(oldNoteTitle: String, oldNoteContent: String): Boolean {
-        return !((oldNoteTitle == _noteTitle.value.text) && (oldNoteContent == _noteContent.value.text))
+    private fun hasNoteContentChanged(
+        oldNoteTitle: String,
+        oldNoteContent: String,
+        oldNoteTagsList: List<String>
+    ): Boolean {
+        return !((oldNoteTitle == _noteTitle.value.text) && (oldNoteContent == _noteContent.value.text) && (oldNoteTagsList == _tagsLiveData.value))
     }
 
 }

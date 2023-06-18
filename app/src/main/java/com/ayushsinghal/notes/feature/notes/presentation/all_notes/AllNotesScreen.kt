@@ -231,20 +231,6 @@ fun AllNotesScreenMainScreen(
                                         "?noteId=${note.id}"
                             )
                         },
-                        onDeleteClick = {
-                            viewModel.onEvent(NotesEvent.DeleteNote(note))
-
-                            scope.launch {
-                                val result = snackBarHostState.showSnackbar(
-                                    message = "Note Deleted",
-                                    actionLabel = "Undo"
-                                )
-
-                                if (result == SnackbarResult.ActionPerformed) {
-                                    viewModel.onEvent(NotesEvent.RestoreNote)
-                                }
-                            }
-                        }
                     )
                 }
             }
