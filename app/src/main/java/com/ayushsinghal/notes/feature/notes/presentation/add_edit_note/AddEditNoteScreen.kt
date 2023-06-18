@@ -1,5 +1,6 @@
 package com.ayushsinghal.notes.feature.notes.presentation.add_edit_note
 
+import android.util.Log
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Arrangement
@@ -42,9 +43,11 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
+import com.ayushsinghal.notes.feature.authentication.presentation.signin.TAG
 import com.ayushsinghal.notes.feature.notes.presentation.add_edit_note.components.DeleteDialog
 import com.ayushsinghal.notes.feature.notes.presentation.add_edit_note.components.TagInputDialog
 import com.ayushsinghal.notes.feature.notes.presentation.add_edit_note.components.TransparentHintTextField
+import com.ayushsinghal.notes.feature.notes.util.NoteStatus
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -71,6 +74,8 @@ fun AddEditNoteScreen(
     val tagIndex = remember { mutableStateOf(-1) }
 
     val showDeleteDialog = remember { mutableStateOf(false) }
+
+    val noteStatusArg = viewModel.noteStatus
 
     BackHandler {
         viewModel.onEvent(AddEditNoteEvent.SaveNote)
@@ -141,8 +146,9 @@ fun AddEditNoteScreen(
         },
 
         bottomBar = {
+                Log.d(TAG,"noteStatusArg: $noteStatusArg")
             BottomBar(
-                isNewNote = viewModel.currentNoteId == null,
+                isNewNote = noteStatusArg == NoteStatus.NewNote.type,
                 onClickDelete = {
                     showDeleteDialog.value = true
                 },

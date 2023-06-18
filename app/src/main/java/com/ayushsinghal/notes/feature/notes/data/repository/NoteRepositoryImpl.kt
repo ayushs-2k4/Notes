@@ -13,10 +13,6 @@ class NoteRepositoryImpl(
         noteDao.upsertNote(note)
     }
 
-//    override suspend fun deleteNote(note: Note) {
-//        noteDao.deleteNote(note)
-//    }
-
     override suspend fun deleteNote(id: Int) {
         noteDao.deleteNote(id)
     }
@@ -25,11 +21,27 @@ class NoteRepositoryImpl(
         return noteDao.getAllNotes()
     }
 
+    override fun getNonTrashedNotes(): Flow<List<Note>> {
+        return noteDao.getNonTrashedNotes()
+    }
+
     override suspend fun getNoteById(id: Int): Note? {
         return noteDao.getNoteById(id)
     }
 
     override suspend fun clearNotes() {
         noteDao.clearNotes()
+    }
+
+    override suspend fun moveNoteToTrash(id: Int) {
+        noteDao.moveNoteToTrash(id)
+    }
+
+    override suspend fun restoreNoteFromTrash(id: Int) {
+        noteDao.restoreNoteFromTrash(id)
+    }
+
+    override fun getTrashedNotes(): Flow<List<Note>> {
+        return noteDao.getTrashedNotes()
     }
 }

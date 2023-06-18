@@ -50,6 +50,7 @@ import com.ayushsinghal.notes.feature.notes.presentation.all_notes.components.Or
 import com.ayushsinghal.notes.util.Screen
 import kotlinx.coroutines.launch
 import com.ayushsinghal.notes.feature.notes.presentation.all_notes.navigation_darwer.DrawerMenuItems
+import com.ayushsinghal.notes.feature.notes.util.NoteStatus
 
 @Composable
 fun AllNotesScreen(
@@ -113,7 +114,7 @@ fun AllNotesScreenMainScreen(
     viewModel: NotesViewModel = hiltViewModel()
 ) {
     val state = viewModel.state.value
-    
+
     val searchResultsKey = remember { mutableStateOf(0) }
 
     Scaffold(
@@ -183,7 +184,8 @@ fun AllNotesScreenMainScreen(
                             Log.d(TAG, "id: ${note.id}")
                             navController.navigate(
                                 Screen.AddEditNoteScreen.route +
-                                        "?noteId=${note.id}"
+                                        "?noteId=${note.id}&noteStatus=${NoteStatus.ExistingNote.type}"
+
                             )
                         },
                     )
@@ -198,7 +200,8 @@ fun MyFloatingActionButton(
     navController: NavController
 ) {
     FloatingActionButton(onClick = {
-        navController.navigate(Screen.AddEditNoteScreen.route)
+        navController.navigate("${Screen.AddEditNoteScreen.route}?noteStatus=${NoteStatus.NewNote.type}")
+
     }
     ) {
         Icon(imageVector = Icons.Default.Create, contentDescription = "Add Note")

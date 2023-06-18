@@ -24,6 +24,7 @@ import com.ayushsinghal.notes.feature.notes.presentation.navigation_drawer_scree
 import com.ayushsinghal.notes.feature.notes.presentation.navigation_drawer_screens.feedback_screen.FeedbackScreen
 import com.ayushsinghal.notes.feature.notes.presentation.navigation_drawer_screens.trash_screen.TrashScreen
 import com.ayushsinghal.notes.feature.notes.presentation.navigation_drawer_screens.settings_screen.SettingsScreen
+import com.ayushsinghal.notes.feature.notes.util.NoteStatus
 import com.ayushsinghal.notes.ui.theme.NotesTheme
 import com.ayushsinghal.notes.util.NavigationDrawerScreen
 import com.ayushsinghal.notes.util.Screen
@@ -40,7 +41,7 @@ class MainActivity : ComponentActivity() {
 //        val windowInsetsController =
 //            ViewCompat.getWindowInsetsController(window.decorView)
 //        windowInsetsController?.isAppearanceLightNavigationBars = true
-        
+
 
         setContent {
             NotesTheme {
@@ -96,13 +97,19 @@ class MainActivity : ComponentActivity() {
 
                         composable(
                             route = Screen.AddEditNoteScreen.route +
-                                    "?noteId={noteId}",
+                                    "?noteId={noteId}&noteStatus={noteStatus}",
                             arguments = listOf(
                                 navArgument(
                                     name = "noteId",
                                 ) {
                                     type = NavType.IntType
                                     defaultValue = -1
+                                },
+                                navArgument(
+                                    name = "noteStatus"
+                                ) {
+                                    type = NavType.StringType
+//                                    defaultValue = NoteStatus.NewNote.type
                                 }
                             )
                         )
@@ -117,7 +124,7 @@ class MainActivity : ComponentActivity() {
 
                         composable(route = NavigationDrawerScreen.Trash.route)
                         {
-                            TrashScreen()
+                            TrashScreen(navController = navController)
                         }
 
                         composable(route = NavigationDrawerScreen.Settings.route)

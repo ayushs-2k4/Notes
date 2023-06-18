@@ -6,7 +6,6 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
-import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Sort
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -29,8 +28,8 @@ fun MySearchBar(
     modifier: Modifier = Modifier,
     onSortButtonPressed: () -> Unit,
     onMenuButtonPressed: () -> Unit,
-    onQueryChange:(String)->Unit,
-    onSearch:(String)->Unit
+    onQueryChange: (String) -> Unit,
+    onSearch: (String) -> Unit
 ) {
     var text by remember { mutableStateOf("") }
     var active by remember { mutableStateOf(false) }
@@ -66,9 +65,9 @@ fun MySearchBar(
             Text(text = "Search your Notes")
         },
         leadingIcon = {
-            IconButton(onClick = { onMenuButtonPressed()}) {
-                    Icon(imageVector = Icons.Default.Menu, contentDescription = "Menu Icon")
-                }
+            IconButton(onClick = { onMenuButtonPressed() }) {
+                Icon(imageVector = Icons.Default.Menu, contentDescription = "Menu Icon")
+            }
         },
         trailingIcon = {
             IconButton(onClick = { onSortButtonPressed() }) {

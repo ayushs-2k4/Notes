@@ -2,19 +2,19 @@
 <project version="4">
   <component name="deploymentTargetDropDown">
     <value>
-      <entry key="MyNavigationDrawerPreview">
-        <State />
-      </entry>
-      <entry key="MySearchBarPreview">
+      <entry key="MyDropDownMenuPreview">
         <State />
       </entry>
       <entry key="SettingSectionPreview">
         <State />
       </entry>
-      <entry key="TagsColumnPreview">
+      <entry key="TopBarPreview">
         <State />
       </entry>
       <entry key="TransparentHintTextFieldPreview">
+        <State />
+      </entry>
+      <entry key="TrashScreenPreview">
         <State />
       </entry>
       <entry key="app">

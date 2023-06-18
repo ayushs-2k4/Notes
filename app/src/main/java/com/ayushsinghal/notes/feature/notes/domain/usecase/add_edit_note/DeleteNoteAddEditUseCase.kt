@@ -20,6 +20,7 @@ class DeleteNoteAddEditUseCase(
         navController: NavController,
         id: Int
     ) {
-        repository.deleteNote(id)
+//        repository.deleteNote(id)
+        repository.moveNoteToTrash(id)
     }
 }

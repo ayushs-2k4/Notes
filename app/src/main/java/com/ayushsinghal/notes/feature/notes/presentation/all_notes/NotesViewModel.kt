@@ -90,15 +90,16 @@ class NotesViewModel @Inject constructor(
         getNotesJob?.cancel()
 
         getNotesJob = viewModelScope.launch {
-            val notes = noteUseCases.getNotesUseCase(noteOrder = noteOrder).collect {
-                originalNotes.clear()
-                originalNotes.addAll(it)
+            val notes =
+                noteUseCases.getNotesUseCase(noteOrder = noteOrder, isTrashed = false).collect {
+                    originalNotes.clear()
+                    originalNotes.addAll(it)
 
-                _state.value = state.value.copy(
-                    notes = it, // It will update the notes list
-                    noteOrder = noteOrder
-                )
-            }
+                    _state.value = state.value.copy(
+                        notes = it, // It will update the notes list
+                        noteOrder = noteOrder
+                    )
+                }
         }
     }
 }

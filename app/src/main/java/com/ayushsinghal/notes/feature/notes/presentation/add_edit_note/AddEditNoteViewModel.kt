@@ -11,6 +11,7 @@ import com.ayushsinghal.notes.feature.notes.domain.model.InvalidNoteException
 import com.ayushsinghal.notes.feature.notes.domain.model.Note
 import com.ayushsinghal.notes.feature.notes.domain.usecase.add_edit_note.AddEditNoteUseCases
 import com.ayushsinghal.notes.feature.notes.domain.usecase.all_notes.NoteUseCases
+import com.ayushsinghal.notes.feature.notes.util.NoteStatus
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
@@ -43,12 +44,16 @@ class AddEditNoteViewModel @Inject constructor(
     private val _tagsLiveData = MutableStateFlow<List<String>>(emptyList())
     val tagsLiveData: Flow<List<String>> = _tagsLiveData
 
-    var currentNoteId: Int? = null
+    private var currentNoteId: Int? = null
     private var currentNoteCreatedDate: Long? = null
     private var currentNoteLastModifiedDate: Long? = null
     private var oldNoteTitle: String? = null
     private var oldNoteContent: String? = null
     private var oldNoteTagsList: List<String>? = null
+
+    private var isTrashed: Boolean = false
+
+    var noteStatus: String? = null
 
     init {
         savedStateHandle.get<Int>("noteId")
@@ -83,16 +88,21 @@ class AddEditNoteViewModel @Inject constructor(
                         oldNoteTagsList = note?.tags
 
                         _tagsLiveData.value = note?.tags ?: emptyList()
+
+                        isTrashed = note?.isTrashed!!
                     }
                 }
             }
+
+        savedStateHandle.get<String>("noteStatus")?.let {
+            noteStatus = it
+        }
     }
 
     fun onEvent(addEditNoteEvent: AddEditNoteEvent) {
         when (addEditNoteEvent) {
             is AddEditNoteEvent.EnteredTitle -> {
                 _noteTitle.value = noteTitle.value.copy(
-//                    isHintVisible = _noteTitle.value.text.isBlank(),
                     text = addEditNoteEvent.value,
                 )
             }
@@ -100,54 +110,52 @@ class AddEditNoteViewModel @Inject constructor(
 
             is AddEditNoteEvent.ChangeTitleFocus -> {
                 _noteTitle.value = _noteTitle.value.copy(
-//                    isHintVisible = (!addEditNoteEvent.focusState.isFocused) && (_noteTitle.value.text.isBlank())
-//                    isHintVisible = _noteTitle.value.text.isBlank()
                 )
             }
 
             is AddEditNoteEvent.EnteredContent -> {
                 _noteContent.value = noteContent.value.copy(
-//                    isHintVisible = _noteContent.value.text.isBlank(),
                     text = addEditNoteEvent.value,
                 )
             }
 
             is AddEditNoteEvent.ChangeContentFocus -> {
                 _noteContent.value = _noteContent.value.copy(
-//                    isHintVisible = _noteContent.value.text.isBlank()
                 )
-//                    isHintVisible = (!addEditNoteEvent.focusState.isFocused) && (_noteContent.value.text.isBlank())
             }
 
             AddEditNoteEvent.SaveNote -> {
-                viewModelScope.launch(Dispatchers.IO) {
-                    try {
-                        noteUseCases.addNoteUseCase(
-                            Note(
-                                id = currentNoteId,
-                                title = _noteTitle.value.text,
-                                content = _noteContent.value.text,
-                                tags = _tagsLiveData.value,
-                                createdDate = currentNoteCreatedDate ?: System.currentTimeMillis(),
-                                lastModifiedDate =
-                                if (currentNoteId == null) {
-                                    System.currentTimeMillis()
-                                } else {
-                                    if (hasNoteContentChanged(
-                                            oldNoteTitle = oldNoteTitle!!,
-                                            oldNoteContent = oldNoteContent!!,
-                                            oldNoteTagsList = oldNoteTagsList!!
-                                        )
-                                    ) {
+                if (!isTrashed) {
+                    viewModelScope.launch(Dispatchers.IO) {
+                        try {
+                            noteUseCases.addNoteUseCase(
+                                Note(
+                                    id = currentNoteId,
+                                    title = _noteTitle.value.text,
+                                    content = _noteContent.value.text,
+                                    tags = _tagsLiveData.value,
+                                    createdDate = currentNoteCreatedDate
+                                        ?: System.currentTimeMillis(),
+                                    lastModifiedDate =
+                                    if (currentNoteId == null) {
                                         System.currentTimeMillis()
                                     } else {
-                                        currentNoteLastModifiedDate!!
+                                        if (hasNoteContentChanged(
+                                                oldNoteTitle = oldNoteTitle!!,
+                                                oldNoteContent = oldNoteContent!!,
+                                                oldNoteTagsList = oldNoteTagsList!!
+                                            )
+                                        ) {
+                                            System.currentTimeMillis()
+                                        } else {
+                                            currentNoteLastModifiedDate!!
+                                        }
                                     }
-                                }
+                                )
                             )
-                        )
-                    } catch (e: InvalidNoteException) {
-                        // Show Snackbar
+                        } catch (e: InvalidNoteException) {
+                            // Show Snackbar
+                        }
                     }
                 }
             }

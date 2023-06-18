@@ -13,7 +13,8 @@ data class Note(
     val content: String,
     val tags: List<String>,
     val lastModifiedDate: Long,
-    val createdDate: Long
+    val createdDate: Long,
+    val isTrashed: Boolean = false
 )
 
 class InvalidNoteException(message: String) : Exception(message)
