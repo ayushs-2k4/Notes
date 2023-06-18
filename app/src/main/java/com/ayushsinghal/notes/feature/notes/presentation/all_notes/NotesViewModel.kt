@@ -73,23 +73,12 @@ class NotesViewModel @Inject constructor(
             }
 
             is NotesEvent.SearchNote -> {
-
-                if (notesEvent.query.isNotEmpty()) {
-                    _state.value = _state.value.copy(notes = originalNotes)
-
-                    val filteredNotes = _state.value.notes.filter { note ->
-                        note.title.contains(notesEvent.query, ignoreCase = true) ||
-                                note.content.contains(notesEvent.query, ignoreCase = true) ||
-                                note.tags.any { tag ->
-                                    tag.contains(
-                                        notesEvent.query,
-                                        ignoreCase = true
-                                    )
-                                }
-                    }
-                    _state.value = state.value.copy(notes = filteredNotes)
-                } else {
-                    _state.value = _state.value.copy(notes = originalNotes)
+                viewModelScope.launch {
+                    noteUseCases.searchNotesUseCase(
+                        query = notesEvent.query,
+                        _state = _state,
+                        originalNotes = originalNotes
+                    )
                 }
             }
         }

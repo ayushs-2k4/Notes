@@ -1,11 +1,7 @@
 package com.ayushsinghal.notes.feature.notes.di
 
 import android.app.Application
-import android.content.Context
-import androidx.navigation.NavController
-import androidx.navigation.Navigation
 import androidx.room.Room
-import com.ayushsinghal.notes.R
 import com.ayushsinghal.notes.feature.notes.data.local.NoteDatabase
 import com.ayushsinghal.notes.feature.notes.data.local.NoteDatabase.Companion.DATABASE_NAME
 import com.ayushsinghal.notes.feature.notes.data.repository.NoteRepositoryImpl
@@ -57,7 +53,7 @@ object NotesModule {
             addNoteUseCase = AddNoteUseCase(noteRepository = noteRepository),
             deleteNoteUseCase = DeleteNoteUseCase(noteRepository = noteRepository),
             getNotesUseCase = GetNotesUseCase(noteRepository = noteRepository),
-            searchNotesUseCase = SearchNotesUseCase(noteRepository = noteRepository)
+            searchNotesUseCase = SearchNotesUseCase()
         )
     }
 
