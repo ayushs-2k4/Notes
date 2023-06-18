@@ -36,4 +36,6 @@ interface NoteDao {
     @Query("SELECT * FROM notes WHERE isTrashed = 0")
     fun getNonTrashedNotes(): Flow<List<Note>>
 
+    @Query("DELETE FROM notes WHERE isTrashed = 1")
+    suspend fun deleteAllTrashedNotes()
 }

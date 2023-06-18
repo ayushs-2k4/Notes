@@ -17,9 +17,10 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.Restore
 import androidx.compose.material.icons.filled.Share
+import androidx.compose.material.icons.outlined.Delete
+import androidx.compose.material.icons.outlined.DeleteForever
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -47,6 +48,8 @@ import com.ayushsinghal.notes.feature.authentication.presentation.signin.TAG
 import com.ayushsinghal.notes.feature.notes.presentation.add_edit_note.components.DeleteDialog
 import com.ayushsinghal.notes.feature.notes.presentation.add_edit_note.components.TagInputDialog
 import com.ayushsinghal.notes.feature.notes.presentation.add_edit_note.components.TransparentHintTextField
+import com.ayushsinghal.notes.feature.notes.presentation.navigation_drawer_screens.trash_screen.TrashEvent
+import com.ayushsinghal.notes.feature.notes.presentation.navigation_drawer_screens.trash_screen.TrashScreenViewModel
 import com.ayushsinghal.notes.feature.notes.util.NoteStatus
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
@@ -57,28 +60,31 @@ import java.util.Locale
 @Composable
 fun AddEditNoteScreen(
     navController: NavController,
-    viewModel: AddEditNoteViewModel = hiltViewModel()
+    addEditNoteViewModel: AddEditNoteViewModel = hiltViewModel(),
+    trashScreenViewModel: TrashScreenViewModel = hiltViewModel()
 ) {
 
     val context = LocalContext.current
 
-    val titleState = viewModel.noteTitle.value
-    val contentState = viewModel.noteContent.value
+    val titleState = addEditNoteViewModel.noteTitle.value
+    val contentState = addEditNoteViewModel.noteContent.value
 
-    val createdDate by remember { mutableStateOf(viewModel.currentNotesCreatedDate2) }
-    val lastModifiedDate by remember { mutableStateOf(viewModel.currentNotesLastModifiedDate2) }
+    val createdDate by remember { mutableStateOf(addEditNoteViewModel.currentNotesCreatedDate2) }
+    val lastModifiedDate by remember { mutableStateOf(addEditNoteViewModel.currentNotesLastModifiedDate2) }
 
-    val myTagsList by viewModel.tagsLiveData.collectAsState(initial = emptyList())
+    val myTagsList by addEditNoteViewModel.tagsLiveData.collectAsState(initial = emptyList())
 
     val showTagDialog = remember { mutableStateOf(false) }
     val tagIndex = remember { mutableStateOf(-1) }
 
     val showDeleteDialog = remember { mutableStateOf(false) }
 
-    val noteStatusArg = viewModel.noteStatus
+    val currentNoteId = addEditNoteViewModel.currentNoteId
+
+    val noteStatusArg = addEditNoteViewModel.noteStatus
 
     BackHandler {
-        viewModel.onEvent(AddEditNoteEvent.SaveNote)
+        addEditNoteViewModel.onEvent(AddEditNoteEvent.SaveNote)
         navController.popBackStack()
     }
 
@@ -92,9 +98,9 @@ fun AddEditNoteScreen(
             },
             onClickAddOrUpdateTag = {
                 if (tagIndex.value == -1) {
-                    viewModel.onEvent(AddEditNoteEvent.OnPlusTagButtonClick(tag = it))
+                    addEditNoteViewModel.onEvent(AddEditNoteEvent.OnPlusTagButtonClick(tag = it))
                 } else {
-                    viewModel.onEvent(
+                    addEditNoteViewModel.onEvent(
                         AddEditNoteEvent.OnChipClick(
                             type = "Update",
                             index = tagIndex.value,
@@ -105,7 +111,7 @@ fun AddEditNoteScreen(
                 showTagDialog.value = false
                 tagIndex.value = -1
             }, onClickCancelOrDelete = {
-                viewModel.onEvent(
+                addEditNoteViewModel.onEvent(
                     AddEditNoteEvent.OnChipClick(
                         type = "Delete",
                         index = tagIndex.value,
@@ -118,24 +124,46 @@ fun AddEditNoteScreen(
     }
 
     if (showDeleteDialog.value) {
-        DeleteDialog(
-            message = "Do you want to delete note",
-            onCancelClick = {
-                showDeleteDialog.value = false
-            },
-            onDeleteClick = {
-                viewModel.viewModelScope.launch {
-                    viewModel.onEvent(
-                        AddEditNoteEvent.DeleteNote(
-                            context = context,
-                            navController = navController
+        if (noteStatusArg == NoteStatus.ExistingNote.type) {
+            DeleteDialog(
+                message = "The note will be moved to Trash",
+                onCancelClick = {
+                    showDeleteDialog.value = false
+                },
+                dismissButtonText = "Cancel",
+                confirmButtonText = "Move to Trash",
+                onDeleteClick = {
+                    addEditNoteViewModel.viewModelScope.launch {
+                        addEditNoteViewModel.onEvent(
+                            AddEditNoteEvent.DeleteNote(
+                                context = context,
+                                navController = navController
+                            )
                         )
-                    )
-                    navController.popBackStack()
+                        navController.popBackStack()
+                    }
+                    showDeleteDialog.value = false
                 }
-                showDeleteDialog.value = false
-            }
-        )
+            )
+        } else if (noteStatusArg == NoteStatus.TrashedNote.type) {
+            DeleteDialog(
+                message = "The note will be permanently deleted",
+                dismissButtonText = "Cancel",
+                confirmButtonText = "Delete Forever",
+                onCancelClick = { showDeleteDialog.value = false },
+                onDeleteClick = {
+                    currentNoteId?.let {
+                        TrashEvent.DeleteNoteForever(
+                            it
+                        )
+                    }?.let {
+                        trashScreenViewModel.onTrashEvent(it)
+                    }
+                    navController.popBackStack()
+                    showDeleteDialog.value = false
+                }
+            )
+        }
     }
 
     Scaffold(
@@ -146,15 +174,24 @@ fun AddEditNoteScreen(
         },
 
         bottomBar = {
-                Log.d(TAG,"noteStatusArg: $noteStatusArg")
+            Log.d(TAG, "noteStatusArg: $noteStatusArg")
             BottomBar(
-                isNewNote = noteStatusArg == NoteStatus.NewNote.type,
-                onClickDelete = {
+                noteStatusArg = noteStatusArg,
+                onClickDeleteOrDeleteForever = {
                     showDeleteDialog.value = true
                 },
-                onClickShare = {
-                    viewModel.viewModelScope.launch {
-                        viewModel.onEvent(AddEditNoteEvent.ShareNote(context))
+                onClickShareOrRestore = {
+                    if (noteStatusArg == NoteStatus.TrashedNote.type) {
+                        currentNoteId?.let {
+                            TrashEvent.RestoreNote(it)
+                        }?.let {
+                            trashScreenViewModel.onTrashEvent(it)
+                            navController.navigateUp()
+                        }
+                    } else {
+                        addEditNoteViewModel.viewModelScope.launch {
+                            addEditNoteViewModel.onEvent(AddEditNoteEvent.ShareNote(context))
+                        }
                     }
                 },
                 onClickMenu = {}
@@ -184,10 +221,10 @@ fun AddEditNoteScreen(
                 givenText = titleState.text,
                 hint = titleState.hint,
                 onValueChange = {
-                    viewModel.onEvent(AddEditNoteEvent.EnteredTitle(it))
+                    addEditNoteViewModel.onEvent(AddEditNoteEvent.EnteredTitle(it))
                 },
                 onFocusChange = {
-                    viewModel.onEvent(AddEditNoteEvent.ChangeTitleFocus(it))
+                    addEditNoteViewModel.onEvent(AddEditNoteEvent.ChangeTitleFocus(it))
                 },
                 textStyle = MaterialTheme.typography.headlineLarge
             )
@@ -196,10 +233,10 @@ fun AddEditNoteScreen(
                 givenText = contentState.text,
                 hint = contentState.hint,
                 onValueChange = {
-                    viewModel.onEvent(AddEditNoteEvent.EnteredContent(it))
+                    addEditNoteViewModel.onEvent(AddEditNoteEvent.EnteredContent(it))
                 },
                 onFocusChange = {
-                    viewModel.onEvent(AddEditNoteEvent.ChangeContentFocus(it))
+                    addEditNoteViewModel.onEvent(AddEditNoteEvent.ChangeContentFocus(it))
                 },
                 textStyle = MaterialTheme.typography.bodyMedium
             )
@@ -253,9 +290,9 @@ fun TopBar(
 
 @Composable
 fun BottomBar(
-    isNewNote: Boolean,
-    onClickDelete: () -> Unit,
-    onClickShare: () -> Unit,
+    noteStatusArg: String,
+    onClickDeleteOrDeleteForever: () -> Unit,
+    onClickShareOrRestore: () -> Unit,
     onClickMenu: () -> Unit
 ) {
 
@@ -265,19 +302,39 @@ fun BottomBar(
             horizontalArrangement = Arrangement.End,
             modifier = Modifier.fillMaxWidth()
         ) {
-            if (!isNewNote) {
-                IconButton(onClick = { onClickDelete() }) {
-                    Icon(imageVector = Icons.Default.Delete, contentDescription = "Delete Note")
+            if (
+                noteStatusArg != NoteStatus.NewNote.type
+            ) {
+                if (noteStatusArg == NoteStatus.ExistingNote.type) {
+                    IconButton(onClick = { onClickDeleteOrDeleteForever() }) {
+                        Icon(
+                            imageVector = Icons.Outlined.Delete,
+                            contentDescription = "Delete Note"
+                        )
+                    }
+                } else if (noteStatusArg == NoteStatus.TrashedNote.type) {
+                    IconButton(onClick = { onClickDeleteOrDeleteForever() }) {
+                        Icon(
+                            imageVector = Icons.Outlined.DeleteForever,
+                            contentDescription = "Delete Note"
+                        )
+                    }
                 }
             }
 
-            IconButton(onClick = { onClickShare() }) {
-                Icon(imageVector = Icons.Default.Share, contentDescription = "Share Note")
+            if (noteStatusArg == NoteStatus.TrashedNote.type) {
+                IconButton(onClick = { onClickShareOrRestore() }) {
+                    Icon(imageVector = Icons.Default.Restore, contentDescription = "Share Note")
+                }
+            } else {
+                IconButton(onClick = { onClickShareOrRestore() }) {
+                    Icon(imageVector = Icons.Default.Share, contentDescription = "Share Note")
+                }
             }
 
-            IconButton(onClick = { onClickMenu() }) {
-                Icon(imageVector = Icons.Default.Menu, contentDescription = "Menu")
-            }
+//            IconButton(onClick = { onClickMenu() }) {
+//                Icon(imageVector = Icons.Default.Menu, contentDescription = "Menu")
+//            }
         }
     }
 }

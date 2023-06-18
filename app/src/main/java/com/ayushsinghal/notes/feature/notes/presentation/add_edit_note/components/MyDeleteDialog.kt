@@ -1,14 +1,16 @@
 package com.ayushsinghal.notes.feature.notes.presentation.add_edit_note.components
 
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Button
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
 
 @Composable
 fun DeleteDialog(
     message: String,
+    dismissButtonText: String,
+    confirmButtonText: String,
     onCancelClick: () -> Unit,
     onDeleteClick: () -> Unit
 ) {
@@ -18,13 +20,13 @@ fun DeleteDialog(
             Text(text = message)
         },
         confirmButton = {
-            Button(onClick = {onDeleteClick()}) {
-                Text(text = "Delete")
+            TextButton(onClick = { onDeleteClick() }) {
+                Text(text = confirmButtonText)
             }
         },
         dismissButton = {
-            Button(onClick = {onCancelClick()}) {
-                Text(text = "Cancel")
+            TextButton(onClick = { onCancelClick() }) {
+                Text(text = dismissButtonText)
             }
         }
     )
@@ -35,6 +37,8 @@ fun DeleteDialog(
 fun DeleteDialogPreview() {
     DeleteDialog(
         message = "Do you want to delete note",
+        dismissButtonText = "Dismiss",
+        confirmButtonText = "Delete",
         onCancelClick = {},
         onDeleteClick = {}
     )

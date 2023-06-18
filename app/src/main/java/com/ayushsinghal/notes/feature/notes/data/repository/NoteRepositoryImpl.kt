@@ -44,4 +44,8 @@ class NoteRepositoryImpl(
     override fun getTrashedNotes(): Flow<List<Note>> {
         return noteDao.getTrashedNotes()
     }
+
+    override suspend fun deleteAllTrashedNotes() {
+        noteDao.deleteAllTrashedNotes()
+    }
 }

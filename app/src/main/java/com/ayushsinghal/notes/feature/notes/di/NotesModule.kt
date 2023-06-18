@@ -16,6 +16,10 @@ import com.ayushsinghal.notes.feature.notes.domain.usecase.all_notes.DeleteNoteU
 import com.ayushsinghal.notes.feature.notes.domain.usecase.all_notes.GetNotesUseCase
 import com.ayushsinghal.notes.feature.notes.domain.usecase.all_notes.NoteUseCases
 import com.ayushsinghal.notes.feature.notes.domain.usecase.all_notes.SearchNotesUseCase
+import com.ayushsinghal.notes.feature.notes.domain.usecase.trash.DeleteAllTrashedNotesForeverUseCase
+import com.ayushsinghal.notes.feature.notes.domain.usecase.trash.DeleteForeverUseCase
+import com.ayushsinghal.notes.feature.notes.domain.usecase.trash.RestoreNoteUseCase
+import com.ayushsinghal.notes.feature.notes.domain.usecase.trash.TrashUseCases
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -71,6 +75,16 @@ object NotesModule {
             getNoteUseCase = GetNoteUseCase(noteRepository),
             shareNoteUseCase = ShareNoteAddEditUseCase(),
             onChipClickAddEditUseCase = OnChipClickAddEditUseCase()
+        )
+    }
+
+    @Singleton
+    @Provides
+    fun provideTrashUseCases(noteRepository: NoteRepository): TrashUseCases {
+        return TrashUseCases(
+            deleteForeverUseCase = DeleteForeverUseCase(repository = noteRepository),
+            restoreNoteUseCase = RestoreNoteUseCase(repository = noteRepository),
+            deleteAllTrashedNotesForeverUseCase = DeleteAllTrashedNotesForeverUseCase(repository = noteRepository)
         )
     }
 }

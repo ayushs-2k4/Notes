@@ -55,7 +55,6 @@ import com.ayushsinghal.notes.feature.notes.util.NoteStatus
 @Composable
 fun AllNotesScreen(
     navController: NavController,
-    viewModel: NotesViewModel = hiltViewModel()
 ) {
     val drawerState = rememberDrawerState(DrawerValue.Closed)
     val scope = rememberCoroutineScope()
