@@ -29,6 +29,10 @@ class NotesViewModel @Inject constructor(
 
     private var getNotesJob: Job? = null
 
+    private val _isGridLayoutSelected = mutableStateOf<Boolean>(true)
+    val isGridLayoutSelected: State<Boolean> = _isGridLayoutSelected
+
+
     init {
         getNotes(NoteOrder.LastModifiedDate(OrderType.Descending))
     }
@@ -75,6 +79,11 @@ class NotesViewModel @Inject constructor(
             }
         }
     }
+
+    fun changeLayoutType(): Unit {
+        _isGridLayoutSelected.value = !isGridLayoutSelected.value
+    }
+
 
     private fun getNotes(noteOrder: NoteOrder) {
 //        noteUseCases.getNotesUseCase(noteOrder) // It will return the flow

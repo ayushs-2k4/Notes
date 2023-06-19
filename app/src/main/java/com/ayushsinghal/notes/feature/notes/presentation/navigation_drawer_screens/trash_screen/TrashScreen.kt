@@ -39,7 +39,7 @@ import com.ayushsinghal.notes.feature.notes.presentation.all_notes.components.No
 import com.ayushsinghal.notes.feature.notes.util.NoteStatus
 import com.ayushsinghal.notes.util.Screen
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun TrashScreen(
     trashScreenViewModel: TrashScreenViewModel = hiltViewModel(),

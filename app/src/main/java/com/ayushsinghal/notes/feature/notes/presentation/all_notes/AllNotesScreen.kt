@@ -1,8 +1,18 @@
 package com.ayushsinghal.notes.feature.notes.presentation.all_notes
 
 import android.util.Log
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.Crossfade
+import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.slideOutVertically
+import androidx.compose.animation.with
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -13,6 +23,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
 import androidx.compose.foundation.lazy.staggeredgrid.items
@@ -37,6 +49,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.text.font.FontFamily
@@ -64,6 +77,8 @@ fun AllNotesScreen(
 
     val selectedItem = remember { mutableStateOf(navigationDrawerItems[0]) }
     val currentScreen = navController.currentDestination?.route
+
+    val isGridLayoutSelected by remember { mutableStateOf(notesViewModel.isGridLayoutSelected) }
 
     ModalNavigationDrawer(
         drawerState = drawerState,
@@ -98,6 +113,10 @@ fun AllNotesScreen(
         AllNotesScreenMainScreen(
             navController = navController,
             viewModel = notesViewModel,
+            isGridLayoutSelected = isGridLayoutSelected.value,
+            onClickChangeLayoutButton = {
+                notesViewModel.changeLayoutType()
+            },
             onMenuButtonPressed = {
                 scope.launch {
                     drawerState.open()
@@ -107,11 +126,16 @@ fun AllNotesScreen(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
+@OptIn(
+    ExperimentalFoundationApi::class,
+    ExperimentalAnimationApi::class
+)
 @Composable
 fun AllNotesScreenMainScreen(
     navController: NavController,
     viewModel: NotesViewModel,
+    isGridLayoutSelected: Boolean,
+    onClickChangeLayoutButton: () -> Unit,
     onMenuButtonPressed: () -> Unit
 ) {
     val state = viewModel.state.value
@@ -121,12 +145,14 @@ fun AllNotesScreenMainScreen(
     Scaffold(
         topBar = {
             TopBar(
+                isGridLayoutSelected = isGridLayoutSelected,
                 onSortButtonPressed = { viewModel.onEvent(NotesEvent.ToggleOrderSection) },
                 onMenuButtonPressed = { onMenuButtonPressed() },
                 onQueryChange = {
                     viewModel.onEvent(NotesEvent.SearchNote(it))
                     searchResultsKey.value++
                 },
+                onClickChangeLayoutButton = { onClickChangeLayoutButton() },
                 onSearch = {
                     viewModel.onEvent(NotesEvent.SearchNote(it))
                     searchResultsKey.value++
@@ -148,7 +174,7 @@ fun AllNotesScreenMainScreen(
                 animationSpec = tween(durationMillis = 300), label = ""
             )
 
-            val offsetYOfLazyStaggeredGrid by animateDpAsState(
+            val offsetYOfAllNotes by animateDpAsState(
                 targetValue = if (state.isOrderSectionVisible) 124.dp else 0.dp,
                 animationSpec = tween(durationMillis = 300), label = ""
             )
@@ -167,29 +193,61 @@ fun AllNotesScreenMainScreen(
             )
 
             // Notes grid
-            LazyVerticalStaggeredGrid(
-                columns = StaggeredGridCells.Fixed(2),
-                modifier = Modifier
-                    .fillMaxSize()
-                    .offset(y = offsetYOfLazyStaggeredGrid)
-            ) {
-                items(state.notes) { note ->
-                    NoteItem(
+            AnimatedContent(targetState = isGridLayoutSelected, label = "", transitionSpec = {
+//                slideInVertically { fullHeight -> fullHeight } + fadeIn() with slideOutVertically { fullHeight -> -fullHeight } + fadeOut()
+                fadeIn() with fadeOut()
+            }) { targetState ->
+                if (targetState) {
+                    LazyVerticalStaggeredGrid(
+                        columns = StaggeredGridCells.Fixed(2),
                         modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(10.dp)
-                            .clickable {
-                            },
-                        note = note,
-                        onClick = {
-                            Log.d(TAG, "id: ${note.id}")
-                            navController.navigate(
-                                Screen.AddEditNoteScreen.route +
-                                        "?noteId=${note.id}&noteStatus=${NoteStatus.ExistingNote.type}"
+                            .fillMaxSize()
+                            .offset(y = offsetYOfAllNotes)
+                    ) {
+                        items(state.notes) { note ->
+                            NoteItem(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(10.dp)
+                                    .clickable {
+                                    },
+                                note = note,
+                                onClick = {
+                                    Log.d(TAG, "id: ${note.id}")
+                                    navController.navigate(
+                                        Screen.AddEditNoteScreen.route +
+                                                "?noteId=${note.id}&noteStatus=${NoteStatus.ExistingNote.type}"
 
+                                    )
+                                },
                             )
-                        },
-                    )
+                        }
+                    }
+                } else if (!targetState) {
+                    LazyColumn(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .offset(y = offsetYOfAllNotes)
+                    ) {
+                        items(state.notes) { note ->
+                            NoteItem(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(10.dp)
+                                    .clickable {
+                                    },
+                                note = note,
+                                onClick = {
+                                    Log.d(TAG, "id: ${note.id}")
+                                    navController.navigate(
+                                        Screen.AddEditNoteScreen.route +
+                                                "?noteId=${note.id}&noteStatus=${NoteStatus.ExistingNote.type}"
+
+                                    )
+                                },
+                            )
+                        }
+                    }
                 }
             }
         }
@@ -212,9 +270,11 @@ fun MyFloatingActionButton(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TopBar(
+    isGridLayoutSelected: Boolean,
     onSortButtonPressed: () -> Unit,
     onMenuButtonPressed: () -> Unit,
     onQueryChange: (String) -> Unit,
+    onClickChangeLayoutButton: () -> Unit,
     onSearch: (String) -> Unit
 ) {
     TopAppBar(
@@ -226,9 +286,11 @@ fun TopBar(
             MySearchBar(
                 modifier = Modifier
                     .fillMaxWidth(),
+                isGridLayoutSelected = isGridLayoutSelected,
                 onSortButtonPressed = { onSortButtonPressed() },
                 onMenuButtonPressed = { onMenuButtonPressed() },
                 onQueryChange = { onQueryChange(it) },
+                onClickChangeLayoutButton = { onClickChangeLayoutButton() },
                 onSearch = { onSearch(it) }
             )
         }

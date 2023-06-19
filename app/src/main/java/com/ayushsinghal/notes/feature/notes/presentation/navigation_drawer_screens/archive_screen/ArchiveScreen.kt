@@ -40,15 +40,6 @@ fun ArchiveScreen(
     archiveScreenViewModel: ArchiveScreenViewModel= hiltViewModel(),
     navController: NavController
 ) {
-//    Column(
-//        modifier = Modifier
-//            .fillMaxSize(),
-//        verticalArrangement = Arrangement.Center,
-//        horizontalAlignment = Alignment.CenterHorizontally
-//    ) {
-//        Text(text = "This is Archive Screen")
-//    }
-
     val notes = archiveScreenViewModel.notes
 
     Scaffold(

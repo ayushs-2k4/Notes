@@ -3,10 +3,13 @@ package com.ayushsinghal.notes.feature.notes.presentation.add_edit_note.componen
 import android.util.Log
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.GridView
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Sort
+import androidx.compose.material.icons.outlined.ViewAgenda
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -26,9 +29,11 @@ import com.ayushsinghal.notes.feature.authentication.presentation.signin.TAG
 @Composable
 fun MySearchBar(
     modifier: Modifier = Modifier,
+    isGridLayoutSelected: Boolean,
     onSortButtonPressed: () -> Unit,
     onMenuButtonPressed: () -> Unit,
     onQueryChange: (String) -> Unit,
+    onClickChangeLayoutButton: () -> Unit,
     onSearch: (String) -> Unit
 ) {
     var text by remember { mutableStateOf("") }
@@ -55,10 +60,10 @@ fun MySearchBar(
         active = active,
         onActiveChange = {
 //            active = it
-            if (active) {
-                paddingValue = 0.dp
+            paddingValue = if (active) {
+                0.dp
             } else {
-                paddingValue = 10.dp
+                10.dp
             }
         },
         placeholder = {
@@ -70,8 +75,18 @@ fun MySearchBar(
             }
         },
         trailingIcon = {
-            IconButton(onClick = { onSortButtonPressed() }) {
-                Icon(imageVector = Icons.Default.Sort, contentDescription = null)
+            Row() {
+                IconButton(onClick = { onClickChangeLayoutButton() }) {
+                    if (isGridLayoutSelected) {
+                        Icon(imageVector = Icons.Outlined.ViewAgenda, contentDescription = null)
+                    } else {
+                        Icon(imageVector = Icons.Default.GridView, contentDescription = null)
+                    }
+                }
+
+                IconButton(onClick = { onSortButtonPressed() }) {
+                    Icon(imageVector = Icons.Default.Sort, contentDescription = null)
+                }
             }
         },
         modifier = modifier
@@ -87,8 +102,10 @@ fun MySearchBar(
 fun MySearchBarPreview() {
     MySearchBar(
         onSortButtonPressed = {},
+        isGridLayoutSelected = false,
         onMenuButtonPressed = {},
         onQueryChange = {},
+        onClickChangeLayoutButton = {},
         onSearch = {}
     )
 }
