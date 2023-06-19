@@ -1,51 +1,32 @@
 package com.ayushsinghal.notes.feature.notes.presentation.all_notes.components
 
 import android.util.Log
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.ripple.rememberRipple
-import androidx.compose.material3.AssistChip
-import androidx.compose.material3.Card
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.ayushsinghal.notes.feature.authentication.presentation.signin.TAG
 import com.ayushsinghal.notes.feature.notes.domain.model.Note
-import com.ayushsinghal.notes.feature.notes.presentation.add_edit_note.AddEditNoteViewModel
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -79,6 +60,15 @@ fun NoteItem(
     )
     {
         Column() {
+
+            if (note.tags.isNotEmpty()) {
+                TagList(
+                    modifier = Modifier
+                        .padding(10.dp),
+                    tags = note.tags
+                )
+            }
+
             if (note.title.isNotBlank()) {
                 Text(
                     text = note.title,
@@ -112,6 +102,50 @@ fun NoteItem(
     }
 }
 
+@OptIn(ExperimentalLayoutApi::class, ExperimentalFoundationApi::class)
+@Composable
+fun TagList(
+    modifier: Modifier = Modifier,
+    tags: List<String>
+) {
+    FlowRow(
+        modifier = modifier,
+        horizontalArrangement = Arrangement.spacedBy(5.dp),
+    ) {
+        tags.forEach {
+            MyTag(text = it)
+        }
+    }
+}
+
+@Composable
+fun MyTag(
+    text: String,
+    modifier: Modifier = Modifier
+) {
+    Box(
+        modifier = modifier
+            .padding(vertical = 3.dp)
+            .clip(MaterialTheme.shapes.extraSmall)
+            .border(
+                width = 1.dp,
+                shape = MaterialTheme.shapes.extraSmall,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+//            .background(
+//                color = MaterialTheme.colorScheme.onSurface
+//            )
+            .padding(horizontal = 2.dp, vertical = 2.dp)
+    )
+    {
+        Text(
+            text = text,
+//            color = MaterialTheme.colorScheme.surface,
+            fontSize = 15.sp
+        )
+    }
+}
+
 @Preview(showSystemUi = true)
 @Composable
 fun NoteItemPreview() {
@@ -119,11 +153,30 @@ fun NoteItemPreview() {
         note = Note(
             title = "Title",
             content = "Content Content Content Content Content Content Content Content Content Content Content Content Content Content Content Content Content Content Content Content Content ",
-            tags = emptyList(),
+            tags = listOf(
+                "Tag 1",
+                "Tag 2",
+                "Tag 2",
+                "Tag 2",
+                "Tag 2",
+                "Tag 2",
+                "Tag 2",
+                "Tag 2",
+                "Tag 2",
+                "Tag 2"
+            ),
             lastModifiedDate = 2,
             createdDate = 1
         ),
         onClick = {},
+    )
+}
+
+@Preview
+@Composable
+fun MyTagPreview() {
+    MyTag(
+        text = "Tag 1"
     )
 }
 
