@@ -55,7 +55,6 @@ import java.util.Locale
 fun NoteItem(
     modifier: Modifier = Modifier,
     note: Note,
-    viewModel: AddEditNoteViewModel = hiltViewModel(),
     onClick: () -> Unit
 ) {
 

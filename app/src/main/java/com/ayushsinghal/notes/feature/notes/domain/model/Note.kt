@@ -14,6 +14,7 @@ data class Note(
     val tags: List<String>,
     val lastModifiedDate: Long,
     val createdDate: Long,
+    val isArchived: Boolean = false,
     val isTrashed: Boolean = false
 )
 

@@ -55,6 +55,7 @@ import com.ayushsinghal.notes.feature.notes.util.NoteStatus
 @Composable
 fun AllNotesScreen(
     navController: NavController,
+    notesViewModel: NotesViewModel = hiltViewModel()
 ) {
     val drawerState = rememberDrawerState(DrawerValue.Closed)
     val scope = rememberCoroutineScope()
@@ -96,6 +97,7 @@ fun AllNotesScreen(
     ) {
         AllNotesScreenMainScreen(
             navController = navController,
+            viewModel = notesViewModel,
             onMenuButtonPressed = {
                 scope.launch {
                     drawerState.open()
@@ -109,8 +111,8 @@ fun AllNotesScreen(
 @Composable
 fun AllNotesScreenMainScreen(
     navController: NavController,
-    onMenuButtonPressed: () -> Unit,
-    viewModel: NotesViewModel = hiltViewModel()
+    viewModel: NotesViewModel,
+    onMenuButtonPressed: () -> Unit
 ) {
     val state = viewModel.state.value
 

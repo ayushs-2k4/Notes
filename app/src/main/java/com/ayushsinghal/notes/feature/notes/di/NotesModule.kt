@@ -7,7 +7,6 @@ import com.ayushsinghal.notes.feature.notes.data.local.NoteDatabase.Companion.DA
 import com.ayushsinghal.notes.feature.notes.data.repository.NoteRepositoryImpl
 import com.ayushsinghal.notes.feature.notes.domain.repository.NoteRepository
 import com.ayushsinghal.notes.feature.notes.domain.usecase.add_edit_note.AddEditNoteUseCases
-import com.ayushsinghal.notes.feature.notes.domain.usecase.add_edit_note.DeleteNoteAddEditUseCase
 import com.ayushsinghal.notes.feature.notes.domain.usecase.add_edit_note.GetNoteUseCase
 import com.ayushsinghal.notes.feature.notes.domain.usecase.add_edit_note.OnChipClickAddEditUseCase
 import com.ayushsinghal.notes.feature.notes.domain.usecase.add_edit_note.ShareNoteAddEditUseCase
@@ -16,8 +15,12 @@ import com.ayushsinghal.notes.feature.notes.domain.usecase.all_notes.DeleteNoteU
 import com.ayushsinghal.notes.feature.notes.domain.usecase.all_notes.GetNotesUseCase
 import com.ayushsinghal.notes.feature.notes.domain.usecase.all_notes.NoteUseCases
 import com.ayushsinghal.notes.feature.notes.domain.usecase.all_notes.SearchNotesUseCase
+import com.ayushsinghal.notes.feature.notes.domain.usecase.archive.ArchiveNoteUseCase
+import com.ayushsinghal.notes.feature.notes.domain.usecase.archive.ArchiveUseCases
+import com.ayushsinghal.notes.feature.notes.domain.usecase.archive.UnArchiveNoteUseCase
 import com.ayushsinghal.notes.feature.notes.domain.usecase.trash.DeleteAllTrashedNotesForeverUseCase
 import com.ayushsinghal.notes.feature.notes.domain.usecase.trash.DeleteForeverUseCase
+import com.ayushsinghal.notes.feature.notes.domain.usecase.trash.MoveNoteToTrashUseCase
 import com.ayushsinghal.notes.feature.notes.domain.usecase.trash.RestoreNoteUseCase
 import com.ayushsinghal.notes.feature.notes.domain.usecase.trash.TrashUseCases
 import dagger.Module
@@ -71,7 +74,6 @@ object NotesModule {
     @Provides
     fun provideAddEditNoteUseCases(noteRepository: NoteRepository): AddEditNoteUseCases {
         return AddEditNoteUseCases(
-            deleteNoteAddEditUseCase = DeleteNoteAddEditUseCase(noteRepository),
             getNoteUseCase = GetNoteUseCase(noteRepository),
             shareNoteUseCase = ShareNoteAddEditUseCase(),
             onChipClickAddEditUseCase = OnChipClickAddEditUseCase()
@@ -82,9 +84,19 @@ object NotesModule {
     @Provides
     fun provideTrashUseCases(noteRepository: NoteRepository): TrashUseCases {
         return TrashUseCases(
+            moveNoteToTrashUseCase = MoveNoteToTrashUseCase(repository = noteRepository),
             deleteForeverUseCase = DeleteForeverUseCase(repository = noteRepository),
             restoreNoteUseCase = RestoreNoteUseCase(repository = noteRepository),
             deleteAllTrashedNotesForeverUseCase = DeleteAllTrashedNotesForeverUseCase(repository = noteRepository)
+        )
+    }
+
+    @Singleton
+    @Provides
+    fun provideArchiveUseCases(noteRepository: NoteRepository): ArchiveUseCases {
+        return ArchiveUseCases(
+            archiveNoteUseCase = ArchiveNoteUseCase(repository = noteRepository),
+            unArchiveNoteUseCase = UnArchiveNoteUseCase(repository = noteRepository)
         )
     }
 }

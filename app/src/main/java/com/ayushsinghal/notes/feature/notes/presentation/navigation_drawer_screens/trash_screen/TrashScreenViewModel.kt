@@ -29,6 +29,12 @@ class TrashScreenViewModel @Inject constructor(
 
     fun onTrashEvent(trashEvent: TrashEvent) {
         when (trashEvent) {
+            is TrashEvent.MoveNoteToTrash -> {
+                viewModelScope.launch {
+                    trashUseCases.moveNoteToTrashUseCase(trashEvent.id)
+                }
+            }
+
             is TrashEvent.DeleteNoteForever -> {
                 viewModelScope.launch {
                     trashUseCases.deleteForeverUseCase(trashEvent.id)
@@ -55,7 +61,7 @@ class TrashScreenViewModel @Inject constructor(
         getNotesJob?.cancel()
 
         getNotesJob = viewModelScope.launch {
-            val notes = noteUseCases.getNotesUseCase(isTrashed = true).collect {
+            val notes = noteUseCases.getNotesUseCase(isTrashed = true, isArchived = false).collect {
 //                originalNotes.clear()
 //                originalNotes.addAll(it)
 

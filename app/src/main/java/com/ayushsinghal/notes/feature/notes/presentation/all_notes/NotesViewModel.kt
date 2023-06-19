@@ -1,30 +1,22 @@
 package com.ayushsinghal.notes.feature.notes.presentation.all_notes
 
-import android.util.Log
-import android.widget.Toast
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.ayushsinghal.notes.feature.authentication.presentation.signin.TAG
 import com.ayushsinghal.notes.feature.notes.domain.model.Note
-import com.ayushsinghal.notes.feature.notes.domain.repository.NoteRepository
 import com.ayushsinghal.notes.feature.notes.domain.usecase.all_notes.NoteUseCases
 import com.ayushsinghal.notes.feature.notes.util.NoteOrder
 import com.ayushsinghal.notes.feature.notes.util.OrderType
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.async
-import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class NotesViewModel @Inject constructor(
-    private val noteUseCases: NoteUseCases,
-    private val noteRepository: NoteRepository
+    private val noteUseCases: NoteUseCases
 ) : ViewModel() {
 
     private val _state = mutableStateOf<NotesState>(NotesState())
@@ -91,7 +83,11 @@ class NotesViewModel @Inject constructor(
 
         getNotesJob = viewModelScope.launch {
             val notes =
-                noteUseCases.getNotesUseCase(noteOrder = noteOrder, isTrashed = false).collect {
+                noteUseCases.getNotesUseCase(
+                    noteOrder = noteOrder,
+                    isTrashed = false,
+                    isArchived = false
+                ).collect {
                     originalNotes.clear()
                     originalNotes.addAll(it)
 

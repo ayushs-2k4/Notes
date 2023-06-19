@@ -18,6 +18,9 @@ interface NoteDao {
     @Query("SELECT * FROM notes")
     fun getAllNotes(): Flow<List<Note>>
 
+    @Query("SELECT * FROM notes WHERE isArchived = 0 AND isTrashed = 0")
+    fun getMainNotes(): Flow<List<Note>>
+
     @Query("SELECT * FROM notes WHERE id = :id")
     suspend fun getNoteById(id: Int): Note?
 
@@ -38,4 +41,16 @@ interface NoteDao {
 
     @Query("DELETE FROM notes WHERE isTrashed = 1")
     suspend fun deleteAllTrashedNotes()
+
+    @Query("UPDATE notes SET isArchived = 1 WHERE id = :id")
+    suspend fun archiveNote(id: Int)
+
+    @Query("UPDATE notes SET isArchived = 0 WHERE id = :id")
+    suspend fun unArchiveNote(id: Int)
+
+    @Query("SELECT * FROM notes WHERE isArchived = 1")
+    fun getArchivedNotes(): Flow<List<Note>>
+
+    @Query("SELECT * FROM notes WHERE isArchived = 0")
+    fun getNonArchivedNotes(): Flow<List<Note>>
 }

@@ -1,5 +1,6 @@
 package com.ayushsinghal.notes.feature.notes.data.repository
 
+import androidx.room.Query
 import com.ayushsinghal.notes.feature.notes.domain.model.Note
 import com.ayushsinghal.notes.feature.notes.data.local.NoteDao
 import com.ayushsinghal.notes.feature.notes.domain.repository.NoteRepository
@@ -19,6 +20,10 @@ class NoteRepositoryImpl(
 
     override fun getAllNotes(): Flow<List<Note>> {
         return noteDao.getAllNotes()
+    }
+
+    override fun getMainNotes(): Flow<List<Note>> {
+        return noteDao.getMainNotes()
     }
 
     override fun getNonTrashedNotes(): Flow<List<Note>> {
@@ -48,4 +53,21 @@ class NoteRepositoryImpl(
     override suspend fun deleteAllTrashedNotes() {
         noteDao.deleteAllTrashedNotes()
     }
+
+    override suspend fun archiveNote(id: Int) {
+        noteDao.archiveNote(id)
+    }
+
+    override suspend fun unArchiveNote(id: Int) {
+        noteDao.unArchiveNote(id)
+    }
+
+    override fun getArchivedNotes(): Flow<List<Note>> {
+        return noteDao.getArchivedNotes()
+    }
+
+    override fun getNonArchivedNotes(): Flow<List<Note>> {
+        return noteDao.getNonArchivedNotes()
+    }
+
 }

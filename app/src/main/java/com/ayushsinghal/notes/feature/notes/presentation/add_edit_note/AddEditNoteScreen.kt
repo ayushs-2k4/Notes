@@ -20,8 +20,10 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Restore
 import androidx.compose.material.icons.filled.Share
+import androidx.compose.material.icons.outlined.Archive
 import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.DeleteForever
+import androidx.compose.material.icons.outlined.Unarchive
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -63,6 +65,8 @@ import com.ayushsinghal.notes.feature.authentication.presentation.signin.TAG
 import com.ayushsinghal.notes.feature.notes.presentation.add_edit_note.components.DeleteDialog
 import com.ayushsinghal.notes.feature.notes.presentation.add_edit_note.components.TagInputDialog
 import com.ayushsinghal.notes.feature.notes.presentation.add_edit_note.components.TransparentHintTextField
+import com.ayushsinghal.notes.feature.notes.presentation.navigation_drawer_screens.archive_screen.ArchiveEvent
+import com.ayushsinghal.notes.feature.notes.presentation.navigation_drawer_screens.archive_screen.ArchiveScreenViewModel
 import com.ayushsinghal.notes.feature.notes.presentation.navigation_drawer_screens.trash_screen.TrashEvent
 import com.ayushsinghal.notes.feature.notes.presentation.navigation_drawer_screens.trash_screen.TrashScreenViewModel
 import com.ayushsinghal.notes.feature.notes.util.NoteStatus
@@ -76,7 +80,8 @@ import java.util.Locale
 fun AddEditNoteScreen(
     navController: NavController,
     addEditNoteViewModel: AddEditNoteViewModel = hiltViewModel(),
-    trashScreenViewModel: TrashScreenViewModel = hiltViewModel()
+    trashScreenViewModel: TrashScreenViewModel = hiltViewModel(),
+    archiveScreenViewModel: ArchiveScreenViewModel = hiltViewModel()
 ) {
 
     val snackbarHostState = remember { SnackbarHostState() }
@@ -154,15 +159,8 @@ fun AddEditNoteScreen(
                 dismissButtonText = "Cancel",
                 confirmButtonText = "Move to Trash",
                 onDeleteClick = {
-                    addEditNoteViewModel.viewModelScope.launch {
-                        addEditNoteViewModel.onEvent(
-                            AddEditNoteEvent.DeleteNote(
-                                context = context,
-                                navController = navController
-                            )
-                        )
-                        navController.popBackStack()
-                    }
+                    trashScreenViewModel.onTrashEvent(TrashEvent.MoveNoteToTrash(currentNoteId!!))
+                    navController.popBackStack()
                     showDeleteDialog.value = false
                 }
             )
@@ -194,7 +192,25 @@ fun AddEditNoteScreen(
         *   Add Color support to notes */
         topBar = {
             TopBar(
+                noteStatusArg = noteStatusArg,
                 navController = navController,
+                archiveUnArchiveButtonClicked = {
+                    if (noteStatusArg == NoteStatus.ExistingNote.type) {
+                        archiveScreenViewModel.onArchiveEvent(
+                            ArchiveEvent.MoveNoteToArchive(
+                                currentNoteId!!
+                            )
+                        )
+                        navController.navigateUp()
+                    } else if (noteStatusArg == NoteStatus.ArchivedNote.type) {
+                        archiveScreenViewModel.onArchiveEvent(
+                            ArchiveEvent.MoveNoteFromArchive(
+                                currentNoteId!!
+                            )
+                        )
+                        navController.navigateUp()
+                    }
+                },
                 scrollBehavior = scrollBehavior
             )
         },
@@ -323,8 +339,10 @@ fun AddEditNoteScreen(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TopBar(
+    noteStatusArg: String,
     viewModel: AddEditNoteViewModel = hiltViewModel(),
     navController: NavController,
+    archiveUnArchiveButtonClicked: () -> Unit,
     scrollBehavior: TopAppBarScrollBehavior
 ) {
     TopAppBar(
@@ -339,6 +357,17 @@ fun TopBar(
             }
         },
         actions = {
+            IconButton(onClick = { archiveUnArchiveButtonClicked() }) {
+                if (noteStatusArg == NoteStatus.ExistingNote.type) {
+                    Icon(imageVector = Icons.Outlined.Archive, contentDescription = "Archive Note")
+                } else if (noteStatusArg == NoteStatus.ArchivedNote.type) {
+                    Log.d(TAG, "Yes, this note is Archived!!!")
+                    Icon(
+                        imageVector = Icons.Outlined.Unarchive,
+                        contentDescription = "Archive Note"
+                    )
+                }
+            }
         }
     )
 }

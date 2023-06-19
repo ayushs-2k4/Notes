@@ -11,6 +11,7 @@ import com.ayushsinghal.notes.feature.notes.domain.model.InvalidNoteException
 import com.ayushsinghal.notes.feature.notes.domain.model.Note
 import com.ayushsinghal.notes.feature.notes.domain.usecase.add_edit_note.AddEditNoteUseCases
 import com.ayushsinghal.notes.feature.notes.domain.usecase.all_notes.NoteUseCases
+import com.ayushsinghal.notes.feature.notes.domain.usecase.archive.ArchiveUseCases
 import com.ayushsinghal.notes.feature.notes.util.NoteStatus
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -23,16 +24,17 @@ import javax.inject.Inject
 class AddEditNoteViewModel @Inject constructor(
     private val noteUseCases: NoteUseCases,
     private val addEditNoteUseCases: AddEditNoteUseCases,
+//    private val archiveUseCases: ArchiveUseCases,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
     // Here we are not taking complete screen as one state just like in All Notes Screen, because whenever the text of title ot content or anything will change, the whole screen will be re-composed
     private val _noteTitle =
-        mutableStateOf<NoteTextFieldState>(NoteTextFieldState(hint = "Title Test Hint"))
+        mutableStateOf<NoteTextFieldState>(NoteTextFieldState(hint = "Title"))
     val noteTitle: State<NoteTextFieldState> = _noteTitle
 
     private val _noteContent =
-        mutableStateOf<NoteTextFieldState>(NoteTextFieldState(hint = "Note Test Hint"))
+        mutableStateOf<NoteTextFieldState>(NoteTextFieldState(hint = "Note"))
     val noteContent: State<NoteTextFieldState> = _noteContent
 
     private val _currentNotesCreatedDate2 = mutableStateOf<Long>(-1)
@@ -51,7 +53,7 @@ class AddEditNoteViewModel @Inject constructor(
     private var oldNoteContent: String? = null
     private var oldNoteTagsList: List<String>? = null
 
-    private var isTrashed: Boolean = false
+//    private var isTrashed: Boolean = false
 
     //    var noteStatus: String? = null
     lateinit var noteStatus: String
@@ -90,7 +92,7 @@ class AddEditNoteViewModel @Inject constructor(
 
                         _tagsLiveData.value = note?.tags ?: emptyList()
 
-                        isTrashed = note?.isTrashed!!
+//                        isTrashed = note?.isTrashed!!
                     }
                 }
             }
@@ -126,7 +128,7 @@ class AddEditNoteViewModel @Inject constructor(
             }
 
             AddEditNoteEvent.SaveNote -> {
-                if (!isTrashed) {
+                if (noteStatus != NoteStatus.TrashedNote.type) {
                     viewModelScope.launch(Dispatchers.IO) {
                         try {
                             noteUseCases.addNoteUseCase(
@@ -151,7 +153,8 @@ class AddEditNoteViewModel @Inject constructor(
                                         } else {
                                             currentNoteLastModifiedDate!!
                                         }
-                                    }
+                                    },
+                                    isArchived = noteStatus == NoteStatus.ArchivedNote.type
                                 )
                             )
                         } catch (e: InvalidNoteException) {
@@ -160,18 +163,7 @@ class AddEditNoteViewModel @Inject constructor(
                     }
                 }
             }
-
-            is AddEditNoteEvent.DeleteNote -> {
-                viewModelScope.launch {
-                    addEditNoteUseCases.deleteNoteAddEditUseCase(
-                        context = addEditNoteEvent.context,
-                        viewModelScope = viewModelScope,
-                        navController = addEditNoteEvent.navController,
-                        id = currentNoteId!!
-                    )
-                }
-            }
-
+            
             is AddEditNoteEvent.ShareNote -> {
                 viewModelScope.launch {
                     addEditNoteUseCases.shareNoteUseCase(

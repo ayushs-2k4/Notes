@@ -109,7 +109,6 @@ class MainActivity : ComponentActivity() {
                                     name = "noteStatus"
                                 ) {
                                     type = NavType.StringType
-//                                    defaultValue = NoteStatus.NewNote.type
                                 }
                             )
                         )
@@ -119,7 +118,7 @@ class MainActivity : ComponentActivity() {
 
                         composable(route = NavigationDrawerScreen.Archive.route)
                         {
-                            ArchiveScreen()
+                            ArchiveScreen(navController = navController)
                         }
 
                         composable(route = NavigationDrawerScreen.Trash.route)

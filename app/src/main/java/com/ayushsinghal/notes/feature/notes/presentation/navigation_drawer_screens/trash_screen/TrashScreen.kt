@@ -62,14 +62,14 @@ fun TrashScreen(
 
     val notes = trashScreenViewModel.notes
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize(),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Text(text = "This is Trash Screen")
-    }
+//    Column(
+//        modifier = Modifier
+//            .fillMaxSize(),
+//        verticalArrangement = Arrangement.Center,
+//        horizontalAlignment = Alignment.CenterHorizontally
+//    ) {
+//        Text(text = "This is Trash Screen")
+//    }
 
     Scaffold(
         topBar = {
