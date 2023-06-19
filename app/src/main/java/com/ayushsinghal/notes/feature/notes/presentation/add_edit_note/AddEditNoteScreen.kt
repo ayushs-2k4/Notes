@@ -150,7 +150,7 @@ fun AddEditNoteScreen(
     }
 
     if (showDeleteDialog.value) {
-        if (noteStatusArg == NoteStatus.ExistingNote.type) {
+        if (noteStatusArg != NoteStatus.TrashedNote.type) {
             DeleteDialog(
                 message = "The note will be moved to Trash",
                 onCancelClick = {
@@ -389,7 +389,7 @@ fun BottomBar(
             if (
                 noteStatusArg != NoteStatus.NewNote.type
             ) {
-                if (noteStatusArg == NoteStatus.ExistingNote.type) {
+                if (noteStatusArg != NoteStatus.TrashedNote.type) {
                     IconButton(onClick = { onClickDeleteOrDeleteForever() }) {
                         Icon(
                             imageVector = ImageVector.vectorResource(id = R.drawable.delete_icon),

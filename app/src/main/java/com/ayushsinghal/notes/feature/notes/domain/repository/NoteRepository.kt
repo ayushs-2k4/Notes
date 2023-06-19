@@ -25,10 +25,10 @@ interface NoteRepository {
     @Query("DELETE FROM notes")
     suspend fun clearNotes()
 
-    @Query("UPDATE notes SET isTrashed = 1 WHERE id = :id")
+    @Query("UPDATE notes SET isTrashed = 1, isArchived = 0 WHERE id = :id")
     suspend fun moveNoteToTrash(id: Int)
 
-    @Query("UPDATE notes SET isTrashed = 0 WHERE id = :id")
+    @Query("UPDATE notes SET isTrashed = 0, isArchived = 0 WHERE id = :id")
     suspend fun restoreNoteFromTrash(id: Int)
 
     @Query("SELECT * FROM notes WHERE isTrashed = 1")
