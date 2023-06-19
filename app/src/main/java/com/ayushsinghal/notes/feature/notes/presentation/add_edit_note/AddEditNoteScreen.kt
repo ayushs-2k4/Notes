@@ -28,15 +28,21 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
@@ -64,6 +70,9 @@ fun AddEditNoteScreen(
     trashScreenViewModel: TrashScreenViewModel = hiltViewModel()
 ) {
 
+    val snackbarHostState = remember { SnackbarHostState() }
+    val scope = rememberCoroutineScope()
+
     val context = LocalContext.current
 
     val titleState = addEditNoteViewModel.noteTitle.value
@@ -82,6 +91,9 @@ fun AddEditNoteScreen(
     val currentNoteId = addEditNoteViewModel.currentNoteId
 
     val noteStatusArg = addEditNoteViewModel.noteStatus
+
+    val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
+
 
     BackHandler {
         addEditNoteViewModel.onEvent(AddEditNoteEvent.SaveNote)
@@ -167,9 +179,15 @@ fun AddEditNoteScreen(
     }
 
     Scaffold(
+        modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
+        snackbarHost = { SnackbarHost(snackbarHostState) },
+        /* TODO --> Complete Snackbar Functionality on touching text fields or chip area in Trash Note Status
+        *   Add Color support to notes
+        * Change TopAppBar color on scroll*/
         topBar = {
             TopBar(
-                navController = navController
+                navController = navController,
+                scrollBehavior = scrollBehavior
             )
         },
 
@@ -271,9 +289,11 @@ fun AddEditNoteScreen(
 @Composable
 fun TopBar(
     viewModel: AddEditNoteViewModel = hiltViewModel(),
-    navController: NavController
+    navController: NavController,
+    scrollBehavior: TopAppBarScrollBehavior
 ) {
     TopAppBar(
+        scrollBehavior = scrollBehavior,
         title = { Text(text = "") },
         navigationIcon = {
             IconButton(onClick = {
