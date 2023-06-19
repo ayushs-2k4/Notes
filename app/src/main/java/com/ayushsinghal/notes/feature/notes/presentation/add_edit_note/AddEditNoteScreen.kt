@@ -3,6 +3,7 @@ package com.ayushsinghal.notes.feature.notes.presentation.add_edit_note
 import android.util.Log
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -28,6 +29,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
@@ -42,14 +44,21 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.FocusState
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
+import com.ayushsinghal.notes.R
 import com.ayushsinghal.notes.feature.authentication.presentation.signin.TAG
 import com.ayushsinghal.notes.feature.notes.presentation.add_edit_note.components.DeleteDialog
 import com.ayushsinghal.notes.feature.notes.presentation.add_edit_note.components.TagInputDialog
@@ -181,9 +190,8 @@ fun AddEditNoteScreen(
     Scaffold(
         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         snackbarHost = { SnackbarHost(snackbarHostState) },
-        /* TODO --> Complete Snackbar Functionality on touching text fields or chip area in Trash Note Status
-        *   Add Color support to notes
-        * Change TopAppBar color on scroll*/
+        /* TODO --> Complete Snack bar Functionality on touching text fields or chip area in Trash Note Status
+        *   Add Color support to notes */
         topBar = {
             TopBar(
                 navController = navController,
@@ -226,12 +234,25 @@ fun AddEditNoteScreen(
 
             ) {
 
-            TagsColumn(tagsList = myTagsList, onAddTagButtonClick = {
-                showTagDialog.value = true
-            },
+            TagsColumn(tagsList = myTagsList,
+                onAddTagButtonClick = {
+                    if (noteStatusArg == NoteStatus.TrashedNote.type) {
+                        scope.launch {
+                            snackbarHostState.showSnackbar(message = "Can't edit in Trash")
+                        }
+                    } else {
+                        showTagDialog.value = true
+                    }
+                },
                 onClick = {
-                    tagIndex.value = it
-                    showTagDialog.value = true
+                    if (noteStatusArg == NoteStatus.TrashedNote.type) {
+                        scope.launch {
+                            snackbarHostState.showSnackbar(message = "Can't edit in Trash")
+                        }
+                    } else {
+                        showTagDialog.value = true
+                        tagIndex.value = it
+                    }
                 }
             )
 
@@ -241,8 +262,15 @@ fun AddEditNoteScreen(
                 onValueChange = {
                     addEditNoteViewModel.onEvent(AddEditNoteEvent.EnteredTitle(it))
                 },
-                onFocusChange = {
-                    addEditNoteViewModel.onEvent(AddEditNoteEvent.ChangeTitleFocus(it))
+                enabled = noteStatusArg != NoteStatus.TrashedNote.type,
+                onFocusChange = { focusState ->
+                    if (focusState.isFocused && noteStatusArg == NoteStatus.TrashedNote.type) {
+                        scope.launch {
+                            snackbarHostState.showSnackbar(message = "Can't edit in Trash")
+                        }
+                    } else {
+                        addEditNoteViewModel.onEvent(AddEditNoteEvent.ChangeTitleFocus(focusState))
+                    }
                 },
                 textStyle = MaterialTheme.typography.headlineLarge
             )
@@ -253,10 +281,17 @@ fun AddEditNoteScreen(
                 onValueChange = {
                     addEditNoteViewModel.onEvent(AddEditNoteEvent.EnteredContent(it))
                 },
-                onFocusChange = {
-                    addEditNoteViewModel.onEvent(AddEditNoteEvent.ChangeContentFocus(it))
+                enabled = noteStatusArg != NoteStatus.TrashedNote.type,
+                onFocusChange = { focusState ->
+                    if (focusState.isFocused && noteStatusArg == NoteStatus.TrashedNote.type) {
+                        scope.launch {
+                            snackbarHostState.showSnackbar(message = "Can't edit in Trash")
+                        }
+                    } else {
+                        addEditNoteViewModel.onEvent(AddEditNoteEvent.ChangeContentFocus(focusState))
+                    }
                 },
-                textStyle = MaterialTheme.typography.bodyMedium
+                textStyle = MaterialTheme.typography.bodyMedium,
             )
 
             Spacer(modifier = Modifier.height(50.dp))
@@ -328,15 +363,15 @@ fun BottomBar(
                 if (noteStatusArg == NoteStatus.ExistingNote.type) {
                     IconButton(onClick = { onClickDeleteOrDeleteForever() }) {
                         Icon(
-                            imageVector = Icons.Outlined.Delete,
+                            imageVector = ImageVector.vectorResource(id = R.drawable.delete_icon),
                             contentDescription = "Delete Note"
                         )
                     }
                 } else if (noteStatusArg == NoteStatus.TrashedNote.type) {
                     IconButton(onClick = { onClickDeleteOrDeleteForever() }) {
                         Icon(
-                            imageVector = Icons.Outlined.DeleteForever,
-                            contentDescription = "Delete Note"
+                            imageVector = ImageVector.vectorResource(id = R.drawable.delete_forever_icon),
+                            contentDescription = "Delete Note Forever"
                         )
                     }
                 }
@@ -344,7 +379,10 @@ fun BottomBar(
 
             if (noteStatusArg == NoteStatus.TrashedNote.type) {
                 IconButton(onClick = { onClickShareOrRestore() }) {
-                    Icon(imageVector = Icons.Default.Restore, contentDescription = "Share Note")
+                    Icon(
+                        ImageVector.vectorResource(id = R.drawable.restore_from_trash_icon),
+                        contentDescription = "Restore Note"
+                    )
                 }
             } else {
                 IconButton(onClick = { onClickShareOrRestore() }) {

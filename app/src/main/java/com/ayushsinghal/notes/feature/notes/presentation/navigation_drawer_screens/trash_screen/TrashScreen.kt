@@ -27,10 +27,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import com.ayushsinghal.notes.R
 import com.ayushsinghal.notes.feature.authentication.presentation.signin.TAG
 import com.ayushsinghal.notes.feature.notes.presentation.add_edit_note.components.DeleteDialog
 import com.ayushsinghal.notes.feature.notes.presentation.all_notes.components.NoteItem
@@ -46,8 +48,7 @@ fun TrashScreen(
 
     val showDeleteDialog = remember { mutableStateOf(false) }
 
-    if(showDeleteDialog.value)
-    {
+    if (showDeleteDialog.value) {
         DeleteDialog(
             message = "All notes in Trash will be permanently deleted.",
             dismissButtonText = "Cancel",
@@ -126,7 +127,10 @@ fun TopBar(
         actions = {
             if (notesSize > 0) {
                 IconButton(onClick = { onClickDeleteButton() }) {
-                    Icon(imageVector = Icons.Outlined.DeleteForever, contentDescription = "Menu")
+                    Icon(
+                        imageVector = ImageVector.vectorResource(id = R.drawable.delete_forever_icon),
+                        contentDescription = "Delete All Trashed Notes Forever"
+                    )
                 }
             }
         }

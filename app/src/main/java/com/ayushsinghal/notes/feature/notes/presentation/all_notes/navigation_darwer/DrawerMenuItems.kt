@@ -6,7 +6,11 @@ import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.Feedback
 import androidx.compose.material.icons.outlined.Lightbulb
 import androidx.compose.material.icons.outlined.Settings
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.graphics.vector.rememberVectorPainter
+import androidx.compose.ui.res.vectorResource
+import com.ayushsinghal.notes.R
 import com.ayushsinghal.notes.util.NavigationDrawerScreen
 import com.ayushsinghal.notes.util.Screen
 

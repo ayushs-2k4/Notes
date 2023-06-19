@@ -20,6 +20,7 @@ fun TransparentHintTextField(
     onValueChange: (String) -> Unit,
     textStyle: TextStyle = TextStyle(),
     singleLine: Boolean = false,
+    enabled:Boolean,
     onFocusChange: (FocusState) -> Unit
 ) {
     val textFieldColors = TextFieldDefaults.colors(
@@ -30,6 +31,7 @@ fun TransparentHintTextField(
         disabledTextColor = Color.Black.copy(),
         focusedContainerColor = Color.Transparent,
         unfocusedContainerColor = Color.Transparent,
+        disabledContainerColor = Color.Transparent
     )
 
     TextField(
@@ -37,6 +39,7 @@ fun TransparentHintTextField(
         onValueChange = onValueChange,
         singleLine = singleLine,
         textStyle = textStyle,
+        enabled = enabled,
         colors = textFieldColors,
         modifier = modifier
             .fillMaxWidth()
@@ -58,6 +61,7 @@ fun TransparentHintTextFieldPreview() {
     TransparentHintTextField(
         givenText = "Text",
         hint = "Hint",
+        enabled = true,
         onValueChange = {},
         onFocusChange = {}
     )
