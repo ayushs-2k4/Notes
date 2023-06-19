@@ -20,7 +20,7 @@ fun TransparentHintTextField(
     onValueChange: (String) -> Unit,
     textStyle: TextStyle = TextStyle(),
     singleLine: Boolean = false,
-    enabled:Boolean,
+    enabled: Boolean,
     onFocusChange: (FocusState) -> Unit
 ) {
     val textFieldColors = TextFieldDefaults.colors(
@@ -28,10 +28,12 @@ fun TransparentHintTextField(
         unfocusedIndicatorColor = Color.Transparent,
         disabledIndicatorColor = Color.Transparent,
         errorIndicatorColor = Color.Transparent,
-        disabledTextColor = Color.Black.copy(),
+//        disabledTextColor = Color.Black.copy(),
         focusedContainerColor = Color.Transparent,
         unfocusedContainerColor = Color.Transparent,
-        disabledContainerColor = Color.Transparent
+        disabledContainerColor = Color.Transparent,
+//        focusedTextColor = Color.Red,
+//        unfocusedTextColor = Color.Yellow,
     )
 
     TextField(
