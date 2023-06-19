@@ -52,6 +52,8 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -88,7 +90,21 @@ fun AllNotesScreen(
                 Spacer(Modifier.height(12.dp))
                 navigationDrawerItems.forEach { navigationDrawerItem ->
                     NavigationDrawerItem(
-                        icon = { Icon(navigationDrawerItem.icon, contentDescription = null) },
+                        icon = {
+//                            Icon(navigationDrawerItem.icon, contentDescription = null)
+                            if (navigationDrawerItem.icon is ImageVector) {
+                                Icon(
+                                    imageVector = navigationDrawerItem.icon,
+                                    contentDescription = null
+                                )
+                            } else if (navigationDrawerItem.icon is Int) {
+                                Icon(
+                                    painter = painterResource(navigationDrawerItem.icon),
+                                    contentDescription = null
+                                )
+                            }
+                        },
+
                         label = {
                             Text(
                                 text = navigationDrawerItem.label,

@@ -15,7 +15,7 @@ import com.ayushsinghal.notes.util.NavigationDrawerScreen
 import com.ayushsinghal.notes.util.Screen
 
 data class DrawerMenuItem(
-    val icon: ImageVector,
+    val icon: Any,
     val label: String,
     val navigationDrawerScreen: String
 )
@@ -34,7 +34,8 @@ object DrawerMenuItems {
             navigationDrawerScreen = NavigationDrawerScreen.Archive.route
         ),
         DrawerMenuItem(
-            icon = Icons.Outlined.Delete,
+//            icon = Icons.Outlined.Delete,
+            icon = R.drawable.delete_icon,
             label = "Trash",
             navigationDrawerScreen = NavigationDrawerScreen.Trash.route
         ),
