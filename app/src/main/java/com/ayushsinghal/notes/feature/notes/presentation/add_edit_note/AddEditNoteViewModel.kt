@@ -196,6 +196,21 @@ class AddEditNoteViewModel @Inject constructor(
                     )
                 }
             }
+
+            is AddEditNoteEvent.MakeACopy -> {
+                viewModelScope.launch {
+                    addEditNoteUseCases.makeACopyAddEditUseCase(
+                        noteUseCases = noteUseCases,
+                        note = Note(
+                            title = _noteTitle.value.text,
+                            content = _noteContent.value.text,
+                            tags = _tagsLiveData.value,
+                            createdDate = System.currentTimeMillis(),
+                            lastModifiedDate = System.currentTimeMillis()
+                        )
+                    )
+                }
+            }
         }
     }
 

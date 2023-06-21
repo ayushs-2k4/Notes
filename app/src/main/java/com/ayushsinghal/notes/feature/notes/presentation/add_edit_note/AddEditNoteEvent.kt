@@ -3,6 +3,7 @@ package com.ayushsinghal.notes.feature.notes.presentation.add_edit_note
 import android.content.Context
 import androidx.compose.ui.focus.FocusState
 import androidx.navigation.NavController
+import com.ayushsinghal.notes.feature.notes.domain.model.Note
 
 sealed class AddEditNoteEvent {
     data class EnteredTitle(val value: String) : AddEditNoteEvent()
@@ -22,4 +23,6 @@ sealed class AddEditNoteEvent {
 
     data class OnChipClick(val type: String, val index: Int, val tag: String) : AddEditNoteEvent()
     class OnPlusTagButtonClick(val tag: String) : AddEditNoteEvent()
+
+    object MakeACopy : AddEditNoteEvent()
 }

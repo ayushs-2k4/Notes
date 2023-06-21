@@ -59,6 +59,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
 import com.ayushsinghal.notes.R
 import com.ayushsinghal.notes.feature.authentication.presentation.signin.TAG
+import com.ayushsinghal.notes.feature.notes.domain.model.Note
 import com.ayushsinghal.notes.feature.notes.presentation.add_edit_note.components.DeleteDialog
 import com.ayushsinghal.notes.feature.notes.presentation.add_edit_note.components.TagInputDialog
 import com.ayushsinghal.notes.feature.notes.presentation.add_edit_note.components.TransparentHintTextField
@@ -233,7 +234,10 @@ fun AddEditNoteScreen(
                         }
                     }
                 },
-                onClickMakeACopy = {},
+                onClickMakeACopy = {
+                    addEditNoteViewModel.onEvent(AddEditNoteEvent.MakeACopy)
+                    navController.popBackStack()
+                },
                 onClickMenu = {}
             )
         }
