@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
@@ -46,6 +47,7 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -270,6 +272,7 @@ fun AddEditNoteScreen(
                     addEditNoteViewModel.onEvent(AddEditNoteEvent.EnteredTitle(it))
                 },
                 enabled = noteStatusArg != NoteStatus.TrashedNote.type,
+                keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences),
                 onFocusChange = { focusState ->
                     if (focusState.isFocused && noteStatusArg == NoteStatus.TrashedNote.type) {
                         scope.launch {
@@ -289,6 +292,7 @@ fun AddEditNoteScreen(
                     addEditNoteViewModel.onEvent(AddEditNoteEvent.EnteredContent(it))
                 },
                 enabled = noteStatusArg != NoteStatus.TrashedNote.type,
+                keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences),
                 onFocusChange = { focusState ->
                     if (focusState.isFocused && noteStatusArg == NoteStatus.TrashedNote.type) {
                         scope.launch {

@@ -1,6 +1,7 @@
 package com.ayushsinghal.notes.feature.notes.presentation.add_edit_note.components
 
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
@@ -21,6 +22,7 @@ fun TransparentHintTextField(
     textStyle: TextStyle = TextStyle(),
     singleLine: Boolean = false,
     enabled: Boolean,
+    keyboardOptions: KeyboardOptions = KeyboardOptions(),
     onFocusChange: (FocusState) -> Unit
 ) {
     val textFieldColors = TextFieldDefaults.colors(
@@ -53,7 +55,8 @@ fun TransparentHintTextField(
                 text = hint,
                 style = textStyle
             )
-        }
+        },
+        keyboardOptions = keyboardOptions
     )
 }
 
