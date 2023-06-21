@@ -87,8 +87,8 @@ fun AddEditNoteScreen(
     val titleState = addEditNoteViewModel.noteTitle.value
     val contentState = addEditNoteViewModel.noteContent.value
 
-    val createdDate by remember { mutableStateOf(addEditNoteViewModel.currentNotesCreatedDate2) }
-    val lastModifiedDate by remember { mutableStateOf(addEditNoteViewModel.currentNotesLastModifiedDate2) }
+    val createdDate by remember { mutableStateOf(addEditNoteViewModel.currentNoteCreatedDate) }
+    val lastModifiedDate by remember { mutableStateOf(addEditNoteViewModel.currentNoteLastModifiedDate) }
 
     val myTagsList by addEditNoteViewModel.tagsLiveData.collectAsState(initial = emptyList())
 

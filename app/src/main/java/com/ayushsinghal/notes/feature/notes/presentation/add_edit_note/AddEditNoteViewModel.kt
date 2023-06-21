@@ -37,18 +37,17 @@ class AddEditNoteViewModel @Inject constructor(
         mutableStateOf<NoteTextFieldState>(NoteTextFieldState(hint = "Note"))
     val noteContent: State<NoteTextFieldState> = _noteContent
 
-    private val _currentNotesCreatedDate2 = mutableStateOf<Long>(-1)
-    val currentNotesCreatedDate2: State<Long> = _currentNotesCreatedDate2
+    private val _currentNoteCreatedDate = mutableStateOf<Long>(System.currentTimeMillis())
+    val currentNoteCreatedDate: State<Long> = _currentNoteCreatedDate
 
-    private val _currentNotesLastModifiedDate2 = mutableStateOf<Long>(-1)
-    val currentNotesLastModifiedDate2: State<Long> = _currentNotesLastModifiedDate2
+    private val _currentNoteLastModifiedDate = mutableStateOf<Long>(System.currentTimeMillis())
+    val currentNoteLastModifiedDate: State<Long> = _currentNoteLastModifiedDate
 
     private val _tagsLiveData = MutableStateFlow<List<String>>(emptyList())
     val tagsLiveData: Flow<List<String>> = _tagsLiveData
 
     var currentNoteId: Int? = null
-    private var currentNoteCreatedDate: Long? = null
-    private var currentNoteLastModifiedDate: Long? = null
+
     private var oldNoteTitle: String? = null
     private var oldNoteContent: String? = null
     private var oldNoteTagsList: List<String>? = null
@@ -79,11 +78,10 @@ class AddEditNoteViewModel @Inject constructor(
 
                         val note: Note? = addEditNoteUseCases.getNoteUseCase(noteId)
 
-                        currentNoteCreatedDate = note?.createdDate
-                        currentNoteLastModifiedDate = note?.lastModifiedDate
-
-                        _currentNotesCreatedDate2.value = note?.createdDate ?: -1
-                        _currentNotesLastModifiedDate2.value = note?.lastModifiedDate ?: -1
+                        _currentNoteCreatedDate.value =
+                            note?.createdDate ?: System.currentTimeMillis()
+                        _currentNoteLastModifiedDate.value =
+                            note?.lastModifiedDate ?: System.currentTimeMillis()
 
                         oldNoteTitle = note?.title
                         oldNoteContent = note?.content
@@ -137,7 +135,7 @@ class AddEditNoteViewModel @Inject constructor(
                                     title = _noteTitle.value.text,
                                     content = _noteContent.value.text,
                                     tags = _tagsLiveData.value,
-                                    createdDate = currentNoteCreatedDate
+                                    createdDate = currentNoteCreatedDate.value
                                         ?: System.currentTimeMillis(),
                                     lastModifiedDate =
                                     if (currentNoteId == null) {
@@ -151,7 +149,7 @@ class AddEditNoteViewModel @Inject constructor(
                                         ) {
                                             System.currentTimeMillis()
                                         } else {
-                                            currentNoteLastModifiedDate!!
+                                            currentNoteLastModifiedDate.value
                                         }
                                     },
                                     isArchived = noteStatus == NoteStatus.ArchivedNote.type
@@ -163,7 +161,7 @@ class AddEditNoteViewModel @Inject constructor(
                     }
                 }
             }
-            
+
             is AddEditNoteEvent.ShareNote -> {
                 viewModelScope.launch {
                     addEditNoteUseCases.shareNoteUseCase(
