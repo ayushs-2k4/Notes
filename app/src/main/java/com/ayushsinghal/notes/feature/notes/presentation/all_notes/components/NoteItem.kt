@@ -144,7 +144,7 @@ fun MyTag(
 //            .background(
 //                color = MaterialTheme.colorScheme.onSurface
 //            )
-            .padding(horizontal = 2.dp, vertical = 2.dp)
+            .padding(horizontal = 6.dp, vertical = 0.dp)
     )
     {
         Text(
