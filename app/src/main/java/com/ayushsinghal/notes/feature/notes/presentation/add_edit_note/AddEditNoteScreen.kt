@@ -83,6 +83,7 @@ import com.ayushsinghal.notes.feature.notes.presentation.navigation_drawer_scree
 import com.ayushsinghal.notes.feature.notes.presentation.navigation_drawer_screens.trash_screen.TrashEvent
 import com.ayushsinghal.notes.feature.notes.presentation.navigation_drawer_screens.trash_screen.TrashScreenViewModel
 import com.ayushsinghal.notes.feature.notes.util.NoteStatus
+import com.ayushsinghal.notes.util.Screen
 import com.google.accompanist.systemuicontroller.SystemUiController
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import kotlinx.coroutines.launch
@@ -253,6 +254,7 @@ fun AddEditNoteScreen(
                             )
                         )
                         navController.navigateUp()
+
                     } else if (noteStatusArg == NoteStatus.ArchivedNote.type) {
                         archiveScreenViewModel.onArchiveEvent(
                             ArchiveEvent.MoveNoteFromArchive(
@@ -260,6 +262,10 @@ fun AddEditNoteScreen(
                             )
                         )
                         navController.navigateUp()
+                        navController.navigate(
+                            Screen.AddEditNoteScreen.route +
+                                    "?noteId=${currentNoteId}&noteStatus=${NoteStatus.ExistingNote.type}"
+                        )
                     }
                 },
                 scrollBehavior = scrollBehavior
@@ -290,6 +296,10 @@ fun AddEditNoteScreen(
                         }?.let {
                             trashScreenViewModel.onTrashEvent(it)
                             navController.navigateUp()
+                            navController.navigate(
+                                Screen.AddEditNoteScreen.route +
+                                        "?noteId=${currentNoteId}&noteStatus=${NoteStatus.ExistingNote.type}"
+                            )
                         }
                     } else {
                         addEditNoteViewModel.viewModelScope.launch {

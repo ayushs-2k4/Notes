@@ -233,7 +233,6 @@ fun AllNotesScreenMainScreen(
                                     navController.navigate(
                                         Screen.AddEditNoteScreen.route +
                                                 "?noteId=${note.id}&noteStatus=${NoteStatus.ExistingNote.type}"
-
                                     )
                                 },
                             )
