@@ -195,6 +195,7 @@ fun AddEditNoteScreen(
                 message = "The note will be permanently deleted",
                 dismissButtonText = "Cancel",
                 confirmButtonText = "Delete Forever",
+                confirmButtonTextColor = Color.Red,
                 onCancelClick = { showDeleteDialog.value = false },
                 onDeleteClick = {
                     currentNoteId?.let {
