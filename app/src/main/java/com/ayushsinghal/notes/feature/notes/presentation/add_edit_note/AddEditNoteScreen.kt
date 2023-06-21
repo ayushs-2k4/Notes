@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -47,6 +48,7 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -271,8 +273,14 @@ fun AddEditNoteScreen(
                 onValueChange = {
                     addEditNoteViewModel.onEvent(AddEditNoteEvent.EnteredTitle(it))
                 },
+                singleLine = true,
                 enabled = noteStatusArg != NoteStatus.TrashedNote.type,
-                keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences),
+                keyboardOptions = KeyboardOptions
+                    (
+                    capitalization = KeyboardCapitalization.Sentences,
+                    imeAction = ImeAction.Next
+                ),
+                keyboardActions = KeyboardActions(),
                 onFocusChange = { focusState ->
                     if (focusState.isFocused && noteStatusArg == NoteStatus.TrashedNote.type) {
                         scope.launch {
@@ -293,6 +301,7 @@ fun AddEditNoteScreen(
                 },
                 enabled = noteStatusArg != NoteStatus.TrashedNote.type,
                 keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences),
+                keyboardActions = KeyboardActions(),
                 onFocusChange = { focusState ->
                     if (focusState.isFocused && noteStatusArg == NoteStatus.TrashedNote.type) {
                         scope.launch {
