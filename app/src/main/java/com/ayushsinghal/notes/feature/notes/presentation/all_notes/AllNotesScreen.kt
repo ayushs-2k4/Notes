@@ -224,7 +224,7 @@ fun AllNotesScreenMainScreen(
                             NoteItem(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .padding(10.dp)
+                                    .padding(4.dp)
                                     .clickable {
                                     },
                                 note = note,
