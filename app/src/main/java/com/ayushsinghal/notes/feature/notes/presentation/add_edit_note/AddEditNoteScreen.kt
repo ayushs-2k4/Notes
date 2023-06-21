@@ -18,6 +18,8 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.ContentCopy
+import androidx.compose.material.icons.filled.CopyAll
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.outlined.AddBox
 import androidx.compose.material.icons.outlined.Archive
@@ -231,6 +233,7 @@ fun AddEditNoteScreen(
                         }
                     }
                 },
+                onClickMakeACopy = {},
                 onClickMenu = {}
             )
         }
@@ -380,6 +383,7 @@ fun TopBar(
 fun BottomBar(
     noteStatusArg: String,
     onClickDeleteOrDeleteForever: () -> Unit,
+    onClickMakeACopy: () -> Unit,
     onClickShareOrRestore: () -> Unit,
     onClickMenu: () -> Unit
 ) {
@@ -407,6 +411,12 @@ fun BottomBar(
                             contentDescription = "Delete Note Forever"
                         )
                     }
+                }
+            }
+
+            if (noteStatusArg == NoteStatus.ExistingNote.type) {
+                IconButton(onClick = { onClickMakeACopy() }) {
+                    Icon(imageVector = Icons.Default.ContentCopy, contentDescription = "Copy Note")
                 }
             }
 

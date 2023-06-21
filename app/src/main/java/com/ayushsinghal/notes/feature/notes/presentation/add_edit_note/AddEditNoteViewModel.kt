@@ -178,37 +178,22 @@ class AddEditNoteViewModel @Inject constructor(
             }
 
             is AddEditNoteEvent.OnChipClick -> { // If clicked on existing chip
-                if (addEditNoteEvent.type == "Update") {
-                    Log.d(TAG, "NoteID: $currentNoteId")
-                    Log.d(TAG, "index: ${addEditNoteEvent.index}")
-                    if ((addEditNoteEvent.tag.isNotEmpty())) {
-                        val updatedList = _tagsLiveData.value.mapIndexed { index, value ->
-                            if (index == addEditNoteEvent.index) {
-                                // Update the value at the target index
-                                // You can modify the value here as per your requirements
-                                addEditNoteEvent.tag
-                            } else {
-                                value
-                            }
-                        }
-                        _tagsLiveData.value = updatedList
-                        Log.d(TAG, "attested: ${_tagsLiveData.value[addEditNoteEvent.index]}")
-                    }
-                } else if (addEditNoteEvent.type == "Delete") {
-                    val updatedList = _tagsLiveData.value.filterIndexed { index, _ ->
-                        index != addEditNoteEvent.index
-                    }
-                    _tagsLiveData.value = updatedList
+                viewModelScope.launch {
+                    addEditNoteUseCases.onChipClickAddEditUseCase(
+                        type = addEditNoteEvent.type,
+                        index = addEditNoteEvent.index,
+                        _tagsLiveData = _tagsLiveData,
+                        tag = addEditNoteEvent.tag
+                    )
                 }
             }
 
             is AddEditNoteEvent.OnPlusTagButtonClick -> { // If clicked on plus button to add new tag
-                Log.d(TAG, "NoteID: $currentNoteId")
-                if ((addEditNoteEvent.tag.isNotEmpty()) && (!_tagsLiveData.value.contains(
-                        addEditNoteEvent.tag
-                    ))
-                ) {
-                    _tagsLiveData.value = _tagsLiveData.value + addEditNoteEvent.tag
+                viewModelScope.launch {
+                    addEditNoteUseCases.onPlusTagButtonClickAddEditUseCase(
+                        _tagsLiveData = _tagsLiveData,
+                        tag = addEditNoteEvent.tag
+                    )
                 }
             }
         }
