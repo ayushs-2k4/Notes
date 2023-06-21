@@ -2,27 +2,34 @@ package com.ayushsinghal.notes.feature.notes.presentation.add_edit_note
 
 import android.util.Log
 import androidx.activity.compose.BackHandler
-import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.ContentCopy
-import androidx.compose.material.icons.filled.CopyAll
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.outlined.AddBox
 import androidx.compose.material.icons.outlined.Archive
+import androidx.compose.material.icons.outlined.Palette
 import androidx.compose.material.icons.outlined.Unarchive
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.BottomAppBar
@@ -30,7 +37,9 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SheetState
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
@@ -43,8 +52,13 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
@@ -52,6 +66,7 @@ import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -59,7 +74,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
 import com.ayushsinghal.notes.R
 import com.ayushsinghal.notes.feature.authentication.presentation.signin.TAG
-import com.ayushsinghal.notes.feature.notes.domain.model.Note
+import com.ayushsinghal.notes.feature.notes.domain.model.Note.Companion.getColors
 import com.ayushsinghal.notes.feature.notes.presentation.add_edit_note.components.DeleteDialog
 import com.ayushsinghal.notes.feature.notes.presentation.add_edit_note.components.TagInputDialog
 import com.ayushsinghal.notes.feature.notes.presentation.add_edit_note.components.TransparentHintTextField
@@ -68,6 +83,8 @@ import com.ayushsinghal.notes.feature.notes.presentation.navigation_drawer_scree
 import com.ayushsinghal.notes.feature.notes.presentation.navigation_drawer_screens.trash_screen.TrashEvent
 import com.ayushsinghal.notes.feature.notes.presentation.navigation_drawer_screens.trash_screen.TrashScreenViewModel
 import com.ayushsinghal.notes.feature.notes.util.NoteStatus
+import com.google.accompanist.systemuicontroller.SystemUiController
+import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -104,7 +121,17 @@ fun AddEditNoteScreen(
 
     val noteStatusArg = addEditNoteViewModel.noteStatus
 
+    val noteColorIndex = addEditNoteViewModel.noteColorIndex
+    val noteColor = getColors()[noteColorIndex.value]
+//    val noteColor = if (noteColorIndex.value == -1) {
+//        MaterialTheme.colorScheme.surface
+//    } else {
+//        getColors()[noteColorIndex.value]
+//    }
+
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
+
+    var openBottomSheet by rememberSaveable { mutableStateOf(false) }
 
 
     BackHandler {
@@ -183,14 +210,40 @@ fun AddEditNoteScreen(
         }
     }
 
+
+
+    if (openBottomSheet) {
+        ModalBottomSheet(
+            onDismissRequest = { openBottomSheet = false },
+            containerColor = noteColor,
+            windowInsets = WindowInsets(0,0,0,0) // To make the status bar color dim when ModalBottomSheet is shown
+        ) {
+            Text(
+                text = "Color",
+                modifier = Modifier
+                    .padding(start = 10.dp)
+            )
+
+            ColorChooser(
+                colorValues = getColors().map {
+                    it.toArgb()
+                },
+                selectedColorIndex = noteColorIndex.value,
+                onClickColor = {
+                    addEditNoteViewModel.onEvent(AddEditNoteEvent.ChangeColor(it))
+                })
+
+            Spacer(modifier = Modifier.height(15.dp))
+        }
+    }
+
     Scaffold(
         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         snackbarHost = { SnackbarHost(snackbarHostState) },
-        /* TODO --> Complete Snack bar Functionality on touching text fields or chip area in Trash Note Status
-        *   Add Color support to notes */
         topBar = {
             TopBar(
                 noteStatusArg = noteStatusArg,
+                color = noteColor,
                 navController = navController,
                 archiveUnArchiveButtonClicked = {
                     if (noteStatusArg == NoteStatus.ExistingNote.type) {
@@ -217,6 +270,16 @@ fun AddEditNoteScreen(
             Log.d(TAG, "noteStatusArg: $noteStatusArg")
             BottomBar(
                 noteStatusArg = noteStatusArg,
+                color = noteColor,
+                onClickPaletteIcon = {
+                    if(noteStatusArg!=NoteStatus.TrashedNote.type) {
+                        openBottomSheet = true
+                    }else{
+                        scope.launch {
+                            snackbarHostState.showSnackbar(message = "Can't edit in Trash")
+                        }
+                    }
+                },
                 onClickDeleteOrDeleteForever = {
                     showDeleteDialog.value = true
                 },
@@ -240,7 +303,9 @@ fun AddEditNoteScreen(
                 },
                 onClickMenu = {}
             )
-        }
+        },
+
+        containerColor = noteColor,
     ) { paddingValues ->
 
         Column(
@@ -248,9 +313,9 @@ fun AddEditNoteScreen(
                 .fillMaxSize()
                 .padding(paddingValues)
                 .padding(horizontal = 12.dp)
-                .verticalScroll(rememberScrollState()),
+                .verticalScroll(rememberScrollState())
 
-            ) {
+        ) {
 
             TagsColumn(tagsList = myTagsList,
                 onAddTagButtonClick = {
@@ -294,7 +359,11 @@ fun AddEditNoteScreen(
                             snackbarHostState.showSnackbar(message = "Can't edit in Trash")
                         }
                     } else {
-                        addEditNoteViewModel.onEvent(AddEditNoteEvent.ChangeTitleFocus(focusState))
+                        addEditNoteViewModel.onEvent(
+                            AddEditNoteEvent.ChangeTitleFocus(
+                                focusState
+                            )
+                        )
                     }
                 },
                 textStyle = MaterialTheme.typography.headlineLarge
@@ -315,7 +384,11 @@ fun AddEditNoteScreen(
                             snackbarHostState.showSnackbar(message = "Can't edit in Trash")
                         }
                     } else {
-                        addEditNoteViewModel.onEvent(AddEditNoteEvent.ChangeContentFocus(focusState))
+                        addEditNoteViewModel.onEvent(
+                            AddEditNoteEvent.ChangeContentFocus(
+                                focusState
+                            )
+                        )
                     }
                 },
                 textStyle = MaterialTheme.typography.bodyMedium,
@@ -342,15 +415,19 @@ fun AddEditNoteScreen(
             )
 
             Spacer(modifier = Modifier.height(10.dp))
-        }
 
+
+        }
     }
+
+
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TopBar(
     noteStatusArg: String,
+    color: Color,
     viewModel: AddEditNoteViewModel = hiltViewModel(),
     navController: NavController,
     archiveUnArchiveButtonClicked: () -> Unit,
@@ -367,6 +444,9 @@ fun TopBar(
                 Icon(imageVector = Icons.Default.ArrowBack, contentDescription = "Go back")
             }
         },
+        colors = TopAppBarDefaults.topAppBarColors(
+            containerColor = color
+        ),
         actions = {
             IconButton(onClick = { archiveUnArchiveButtonClicked() }) {
                 if (noteStatusArg == NoteStatus.ExistingNote.type) {
@@ -386,18 +466,32 @@ fun TopBar(
 @Composable
 fun BottomBar(
     noteStatusArg: String,
+    color: Color,
+    onClickPaletteIcon: () -> Unit,
     onClickDeleteOrDeleteForever: () -> Unit,
     onClickMakeACopy: () -> Unit,
     onClickShareOrRestore: () -> Unit,
     onClickMenu: () -> Unit
 ) {
 
-    BottomAppBar() {
+    BottomAppBar(
+        containerColor = color
+    ) {
+
+        IconButton(onClick = { onClickPaletteIcon() }) {
+            Icon(
+                imageVector = Icons.Outlined.Palette,
+                contentDescription = "New Icon"
+            )
+        }
+
         Row(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.End,
             modifier = Modifier.fillMaxWidth()
         ) {
+
+
             if (
                 noteStatusArg != NoteStatus.NewNote.type
             ) {
@@ -444,7 +538,62 @@ fun BottomBar(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
+//@OptIn(ExperimentalMaterial3Api::class)
+//@Composable
+//fun MyBottomSheet(
+//    myBottomSheetContent: @Composable () -> Unit,
+//    content: @Composable (SheetState) -> Unit
+//) {
+//    val bottomSheetState = rememberStandardBottomSheetState(
+//        initialValue = SheetValue.Hidden,
+//        skipHiddenState = false,
+//    )
+//
+//    val modalSheetState = rememberBottomSheetScaffoldState(
+//        bottomSheetState = bottomSheetState
+//    )
+//
+//    BottomSheetScaffold(
+//        scaffoldState = modalSheetState,
+//        sheetContent = {
+//            myBottomSheetContent()
+//        },
+//        sheetPeekHeight = 0.dp
+//    ) {
+//        content(bottomSheetState)
+//    }
+//}
+
+@Composable
+fun ColorChooser(
+    colorValues: List<Int>,
+    selectedColorIndex: Int,
+    onClickColor: (colorIndex: Int) -> Unit
+) {
+    LazyRow(
+        modifier = Modifier
+            .fillMaxWidth()
+    ) {
+        items(colorValues.size) {
+            Box(
+                modifier = Modifier
+                    .size(70.dp)
+                    .padding(10.dp)
+                    .clip(CircleShape)
+                    .background(Color(colorValues[it]))
+                    .clickable {
+                        onClickColor(it)
+                    }
+                    .border(
+                        width = if (selectedColorIndex == it) 2.dp else 1.dp,
+                        color = if (selectedColorIndex == it) MaterialTheme.colorScheme.primary else Color.Black,
+                        shape = CircleShape
+                    )
+            )
+        }
+    }
+}
+
 @Composable
 fun TagsColumn(
     tagsList: List<String>,
@@ -474,6 +623,31 @@ fun TagsColumn(
             }
         }
     }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun test(
+    myBottomSheetContent: @Composable () -> Unit,
+    content: @Composable (SheetState) -> Unit
+) {
+    ModalBottomSheet(onDismissRequest = { /*TODO*/ }) {
+        Text(text = "Sheet Content")
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Preview
+@Composable
+fun testPrev() {
+    test(
+        myBottomSheetContent = {
+            Text(text = "Sheet Content")
+        },
+        content = {
+            Text(text = "Behind Sheet")
+        }
+    )
 }
 
 //@Preview(showSystemUi = true)
@@ -568,6 +742,26 @@ fun TagsColumn(
 //fun TagsColumnPreview() {
 //
 //    TagsColumn(tagsList = tagsList, onAddTagButtonClick = {}, onClick = {})
+//}
+
+//@Preview
+//@Composable
+//fun BottomSheetContentPreview() {
+//    val list = listOf(
+//        RedOrange.toArgb(), RedPink.toArgb(), BabyBlue.toArgb(), Violet.toArgb(),
+//        LightGreen.toArgb()
+//    )
+//    var selectedColor by remember {
+//        mutableStateOf(BabyBlue)
+//    }
+//    BottomSheetContent(
+//        colorValues = list,
+////        selectedColor = MaterialTheme.colorScheme.surface,
+//        selectedColor = selectedColor,
+//        onClickColor = {
+//            selectedColor = Color(it)
+//        }
+//    )
 //}
 
 private fun convertTimestampToDate(timestamp: Long): String {

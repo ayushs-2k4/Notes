@@ -21,12 +21,16 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.ayushsinghal.notes.feature.authentication.presentation.signin.TAG
 import com.ayushsinghal.notes.feature.notes.domain.model.Note
+import com.ayushsinghal.notes.feature.notes.domain.model.Note.Companion.getColors
+import com.ayushsinghal.notes.ui.theme.PastelGreen
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -38,18 +42,23 @@ fun NoteItem(
     note: Note,
     onClick: () -> Unit
 ) {
+    val noteColor = getColors()[note.selectedColorIndex]
 
     Box(
         modifier = modifier
             .background(
                 shape = MaterialTheme.shapes.medium,
-                color = MaterialTheme.colorScheme.surface
+                color = noteColor
             )
             .clip(MaterialTheme.shapes.medium)
             .border(
                 width = 1.dp,
                 shape = MaterialTheme.shapes.medium,
-                color = MaterialTheme.colorScheme.onSurface
+                color = if (noteColor == MaterialTheme.colorScheme.background) {
+                    MaterialTheme.colorScheme.onSurface
+                } else {
+                    noteColor
+                }
             )
             .combinedClickable(
                 interactionSource = remember { MutableInteractionSource() },
@@ -166,19 +175,20 @@ fun NoteItemPreview() {
                 "Tag 2"
             ),
             lastModifiedDate = 2,
-            createdDate = 1
+            createdDate = 1,
+            selectedColorIndex = 3
         ),
         onClick = {},
     )
 }
 
-@Preview
-@Composable
-fun MyTagPreview() {
-    MyTag(
-        text = "Tag 1"
-    )
-}
+//@Preview
+//@Composable
+//fun MyTagPreview() {
+//    MyTag(
+//        text = "Tag 1"
+//    )
+//}
 
 private fun convertTimestampToDate(timestamp: Long): String {
     val format = SimpleDateFormat("EEE, dd MMM h:mm a", Locale.getDefault())

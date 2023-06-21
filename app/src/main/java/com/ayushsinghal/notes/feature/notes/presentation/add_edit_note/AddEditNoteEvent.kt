@@ -2,6 +2,7 @@ package com.ayushsinghal.notes.feature.notes.presentation.add_edit_note
 
 import android.content.Context
 import androidx.compose.ui.focus.FocusState
+import androidx.compose.ui.graphics.Color
 import androidx.navigation.NavController
 import com.ayushsinghal.notes.feature.notes.domain.model.Note
 
@@ -25,4 +26,6 @@ sealed class AddEditNoteEvent {
     class OnPlusTagButtonClick(val tag: String) : AddEditNoteEvent()
 
     object MakeACopy : AddEditNoteEvent()
+
+    class ChangeColor(val noteColorIndex: Int) : AddEditNoteEvent()
 }

@@ -3,6 +3,8 @@ package com.ayushsinghal.notes.feature.notes.presentation.add_edit_note
 import android.util.Log
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -46,6 +48,10 @@ class AddEditNoteViewModel @Inject constructor(
     private val _tagsLiveData = MutableStateFlow<List<String>>(emptyList())
     val tagsLiveData: Flow<List<String>> = _tagsLiveData
 
+    private val _noteColorIndex = mutableStateOf<Int>(0)
+    val noteColorIndex: State<Int> = _noteColorIndex
+
+
     var currentNoteId: Int? = null
 
     private var oldNoteTitle: String? = null
@@ -56,6 +62,7 @@ class AddEditNoteViewModel @Inject constructor(
 
     //    var noteStatus: String? = null
     lateinit var noteStatus: String
+
 
     init {
         savedStateHandle.get<Int>("noteId")
@@ -91,6 +98,9 @@ class AddEditNoteViewModel @Inject constructor(
                         _tagsLiveData.value = note?.tags ?: emptyList()
 
 //                        isTrashed = note?.isTrashed!!
+
+                        _noteColorIndex.value = (note?.selectedColorIndex!!)
+
                     }
                 }
             }
@@ -152,7 +162,8 @@ class AddEditNoteViewModel @Inject constructor(
                                             currentNoteLastModifiedDate.value
                                         }
                                     },
-                                    isArchived = noteStatus == NoteStatus.ArchivedNote.type
+                                    isArchived = noteStatus == NoteStatus.ArchivedNote.type,
+                                    selectedColorIndex = noteColorIndex.value
                                 )
                             )
                         } catch (e: InvalidNoteException) {
@@ -210,6 +221,10 @@ class AddEditNoteViewModel @Inject constructor(
                         )
                     )
                 }
+            }
+
+            is AddEditNoteEvent.ChangeColor -> {
+                _noteColorIndex.value = addEditNoteEvent.noteColorIndex
             }
         }
     }

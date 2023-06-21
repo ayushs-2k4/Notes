@@ -2,22 +2,22 @@
 <project version="4">
   <component name="deploymentTargetDropDown">
     <value>
+      <entry key="BottomSheetContentPreview">
+        <State />
+      </entry>
+      <entry key="MyBottomSheestPreview">
+        <State />
+      </entry>
       <entry key="MyBottomSheetPreview">
         <State />
       </entry>
-      <entry key="MyDropDownMenuPreview">
-        <State />
-      </entry>
-      <entry key="MyTagPreview">
-        <State />
-      </entry>
-      <entry key="TopBarPreview">
-        <State />
-      </entry>
-      <entry key="TrashScreenPreview">
+      <entry key="MyBottomSheetPreview1">
         <State />
       </entry>
       <entry key="app">
+        <State />
+      </entry>
+      <entry key="testPrev">
         <State />
       </entry>
     </value>
