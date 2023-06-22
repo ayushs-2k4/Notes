@@ -82,11 +82,14 @@ fun TrashScreen(
                 .fillMaxSize()
                 .padding(paddingValues)
         ) {
-            items(notes.value) { note ->
+            items(notes.value,key={note->
+                note.id ?: 0
+            }) { note ->
                 NoteItem(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(10.dp)
+                        .animateItemPlacement()
                         .clickable {
                         },
                     note = note,
@@ -129,8 +132,6 @@ fun TopBar(
         }
     )
 }
-
-data class MyMenuItem(val title: String, val icon: ImageVector)
 
 @Preview(showSystemUi = true)
 @Composable
