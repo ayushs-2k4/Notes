@@ -12,6 +12,26 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 import androidx.room.TypeConverters
 import com.ayushsinghal.notes.R
+import com.ayushsinghal.notes.ui.theme.DarkAzureishWhite
+import com.ayushsinghal.notes.ui.theme.DarkBrightGray
+import com.ayushsinghal.notes.ui.theme.DarkCrystal
+import com.ayushsinghal.notes.ui.theme.DarkGreen
+import com.ayushsinghal.notes.ui.theme.DarkLightSteelBlue
+import com.ayushsinghal.notes.ui.theme.DarkOrange
+import com.ayushsinghal.notes.ui.theme.DarkPalePink
+import com.ayushsinghal.notes.ui.theme.DarkPink
+import com.ayushsinghal.notes.ui.theme.DarkThistle
+import com.ayushsinghal.notes.ui.theme.DarkWhiteCoffee
+import com.ayushsinghal.notes.ui.theme.DarkYellow
+import com.ayushsinghal.notes.ui.theme.LightAzureishWhite
+import com.ayushsinghal.notes.ui.theme.LightBrightGray
+import com.ayushsinghal.notes.ui.theme.LightCrystal
+import com.ayushsinghal.notes.ui.theme.LightGreen
+import com.ayushsinghal.notes.ui.theme.LightOrange
+import com.ayushsinghal.notes.ui.theme.LightPalePink
+import com.ayushsinghal.notes.ui.theme.LightPink
+import com.ayushsinghal.notes.ui.theme.LightThistle
+import com.ayushsinghal.notes.ui.theme.LightWhiteCoffee
 import com.ayushsinghal.notes.ui.theme.LightYellow
 import com.ayushsinghal.notes.ui.theme.Lilac
 import com.ayushsinghal.notes.ui.theme.MintGreen
@@ -22,6 +42,7 @@ import com.ayushsinghal.notes.ui.theme.Peach
 import com.ayushsinghal.notes.ui.theme.SkyBlue
 import com.ayushsinghal.notes.ui.theme.SoftCoral
 import com.ayushsinghal.notes.ui.theme.SoftLavender
+import com.ayushsinghal.notes.ui.theme.LightLightSteelBlue as LightLightSteelBlue1
 
 @Entity(tableName = "notes")
 @TypeConverters(MyTypeConverters::class)
@@ -44,26 +65,54 @@ data class Note(
         fun getColors(): List<Color> {
 
             val lightNoteColors = listOf(
+//                MaterialTheme.colorScheme.surface,
+//                PalePink,
+//                SoftLavender,
+//                MintGreen,
+//                SkyBlue,
+//                Peach,
+//                Lilac,
+//                LightYellow,
+//                PaleTurquoise,
+//                SoftCoral,
+//                PastelGreen
+
                 MaterialTheme.colorScheme.surface,
-                PalePink,
-                SoftLavender,
-                MintGreen,
-                SkyBlue,
-                Peach,
-                Lilac,
+                LightPink,
+                LightOrange,
                 LightYellow,
-                PaleTurquoise,
-                SoftCoral,
-                PastelGreen
+                LightGreen,
+                LightCrystal,
+                LightAzureishWhite,
+                LightLightSteelBlue1,
+                LightThistle,
+                LightPalePink,
+                LightWhiteCoffee,
+                LightBrightGray
             )
 
-            val darkNoteColors = lightNoteColors.map {
-                if (it != MaterialTheme.colorScheme.surface) {
-                    it.darken()
-                } else {
-                    it
-                }
-            }
+            val darkNoteColors = listOf(
+                MaterialTheme.colorScheme.surface,
+                DarkPink,
+                DarkOrange,
+                DarkYellow,
+                DarkGreen,
+                DarkCrystal,
+                DarkAzureishWhite,
+                DarkLightSteelBlue,
+                DarkThistle,
+                DarkPalePink,
+                DarkWhiteCoffee,
+                DarkBrightGray
+            )
+
+//            val darkNoteColors = lightNoteColors.map {
+//                if (it != MaterialTheme.colorScheme.surface) {
+//                    it.darken()
+//                } else {
+//                    it
+//                }
+//            }
 
             return if (isSystemInDarkTheme()) {
                 darkNoteColors
