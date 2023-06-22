@@ -68,7 +68,7 @@ fun ArchiveScreen(
                         .clickable {
                         },
                     note = note,
-                    onClick = {
+                    onNoteItemClick = {
                         Log.d(TAG, "id: ${note.id}")
                         navController.navigate("${Screen.AddEditNoteScreen.route}?noteId=${note.id}&noteStatus=${NoteStatus.ArchivedNote.type}")
                     },

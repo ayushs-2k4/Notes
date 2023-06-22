@@ -1,9 +1,12 @@
 package com.ayushsinghal.notes.feature.notes.presentation.all_notes.components
 
+import android.content.res.Configuration
 import android.util.Log
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
@@ -14,6 +17,8 @@ import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -21,12 +26,16 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.paint
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.ayushsinghal.notes.R
 import com.ayushsinghal.notes.feature.authentication.presentation.signin.TAG
 import com.ayushsinghal.notes.feature.notes.domain.model.Note
 import com.ayushsinghal.notes.feature.notes.domain.model.Note.Companion.getColors
@@ -40,7 +49,7 @@ import java.util.Locale
 fun NoteItem(
     modifier: Modifier = Modifier,
     note: Note,
-    onClick: () -> Unit
+    onNoteItemClick: () -> Unit
 ) {
     val noteColor = getColors()[note.selectedColorIndex]
 
@@ -51,6 +60,16 @@ fun NoteItem(
                 color = noteColor
             )
             .clip(MaterialTheme.shapes.medium)
+            .run {
+                if (note.selectedBackgroundImageIndex != 0) {
+                    paint(
+                        painter = painterResource(Note.getBackgroundImages()[note.selectedBackgroundImageIndex]),
+                        contentScale = ContentScale.Crop
+                    )
+                } else {
+                    this
+                }
+            }
             .border(
                 width = 1.dp,
                 shape = MaterialTheme.shapes.medium,
@@ -63,7 +82,7 @@ fun NoteItem(
             .combinedClickable(
                 interactionSource = remember { MutableInteractionSource() },
                 indication = rememberRipple(),
-                onClick = { onClick() },
+                onClick = { onNoteItemClick() },
                 onLongClick = { Log.d(TAG, "Long clicked on note with id: ${note.id}") }
             )
     )
@@ -99,6 +118,23 @@ fun NoteItem(
             }
 
             Spacer(modifier = Modifier.height(10.dp))
+
+            if ((note.selectedBackgroundImageIndex != 0) && (noteColor != MaterialTheme.colorScheme.surface)) {
+                Box(
+                    modifier = Modifier
+                        .size(45.dp)
+                        .padding(10.dp)
+                        .clip(CircleShape)
+                        .background(Color(noteColor.toArgb()))
+                        .border(
+                            width = 1.dp,
+                            color = Color.Black,
+                            shape = CircleShape
+                        )
+                )
+
+                Spacer(modifier = Modifier.height(10.dp))
+            }
 
             Text(
                 text = "Created: ${convertTimestampToDate(note.createdDate)}",
@@ -176,9 +212,10 @@ fun NoteItemPreview() {
             ),
             lastModifiedDate = 2,
             createdDate = 1,
-            selectedColorIndex = 3
+            selectedColorIndex = 4,
+            selectedBackgroundImageIndex = 1
         ),
-        onClick = {},
+        onNoteItemClick = {}
     )
 }
 

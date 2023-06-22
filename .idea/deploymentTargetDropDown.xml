@@ -2,13 +2,13 @@
 <project version="4">
   <component name="deploymentTargetDropDown">
     <value>
-      <entry key="BottomSheetContentPreview">
-        <State />
-      </entry>
       <entry key="MyBottomSheestPreview">
         <State />
       </entry>
       <entry key="MyBottomSheetPreview1">
+        <State />
+      </entry>
+      <entry key="MyScaffoldPreview">
         <State />
       </entry>
       <entry key="MySearchBar2Preview">

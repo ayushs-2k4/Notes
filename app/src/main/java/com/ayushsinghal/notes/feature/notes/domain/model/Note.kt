@@ -1,6 +1,9 @@
 package com.ayushsinghal.notes.feature.notes.domain.model
 
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.HideImage
+import androidx.compose.material.icons.filled.ImageNotSupported
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
@@ -8,6 +11,7 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import androidx.room.TypeConverters
+import com.ayushsinghal.notes.R
 import com.ayushsinghal.notes.ui.theme.LightYellow
 import com.ayushsinghal.notes.ui.theme.Lilac
 import com.ayushsinghal.notes.ui.theme.MintGreen
@@ -31,7 +35,8 @@ data class Note(
     val createdDate: Long,
     val isArchived: Boolean = false,
     val isTrashed: Boolean = false,
-    val selectedColorIndex: Int = 0
+    val selectedColorIndex: Int = 0,
+    val selectedBackgroundImageIndex: Int = 0
 ) {
     companion object {
 
@@ -43,8 +48,6 @@ data class Note(
 
             val lightNoteColors = listOf(
                 MaterialTheme.colorScheme.surface,
-                Color.Red,
-                Color.Cyan,
                 PalePink,
                 SoftLavender,
                 MintGreen,
@@ -69,6 +72,41 @@ data class Note(
                 darkNoteColors
             } else {
                 lightNoteColors
+            }
+        }
+
+        @Composable
+        fun getBackgroundImages(): List<Int> {
+            val lightColorImages = listOf(
+                R.drawable.image_not_supported,
+                R.drawable.note_background_light_video_0609,
+                R.drawable.note_background_light_travel_0614,
+                R.drawable.note_background_light_recipe_0609,
+                R.drawable.note_background_light_places_0609,
+                R.drawable.note_background_light_notes_0609,
+                R.drawable.note_background_light_music_0609,
+                R.drawable.note_background_light_grocery_0609,
+                R.drawable.note_background_light_food_0609,
+                R.drawable.note_background_light_celebration_0714
+            )
+
+            val darkColorImages = listOf(
+                R.drawable.image_not_supported,
+                R.drawable.note_background_dark_video_0609,
+                R.drawable.note_background_dark_travel_0609,
+                R.drawable.note_background_dark_recipe_0609,
+                R.drawable.note_background_dark_places_0609,
+                R.drawable.note_background_dark_notes_0714,
+                R.drawable.note_background_dark_music_0609,
+                R.drawable.note_background_dark_grocery_0609,
+                R.drawable.note_background_dark_food_0609,
+                R.drawable.note_background_dark_celebration_0714
+            )
+
+            return if (isSystemInDarkTheme()) {
+                darkColorImages
+            } else {
+                lightColorImages
             }
         }
 

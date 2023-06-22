@@ -2,9 +2,13 @@ package com.ayushsinghal.notes.feature.notes.presentation.add_edit_note
 
 import android.util.Log
 import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -17,7 +21,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardActions
@@ -31,6 +34,7 @@ import androidx.compose.material.icons.outlined.AddBox
 import androidx.compose.material.icons.outlined.Archive
 import androidx.compose.material.icons.outlined.Palette
 import androidx.compose.material.icons.outlined.Unarchive
+import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -39,7 +43,6 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SheetState
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
@@ -57,11 +60,14 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.paint
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.input.ImeAction
@@ -74,6 +80,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
 import com.ayushsinghal.notes.R
 import com.ayushsinghal.notes.feature.authentication.presentation.signin.TAG
+import com.ayushsinghal.notes.feature.notes.domain.model.Note
 import com.ayushsinghal.notes.feature.notes.domain.model.Note.Companion.getColors
 import com.ayushsinghal.notes.feature.notes.presentation.add_edit_note.components.DeleteDialog
 import com.ayushsinghal.notes.feature.notes.presentation.add_edit_note.components.TagInputDialog
@@ -84,14 +91,12 @@ import com.ayushsinghal.notes.feature.notes.presentation.navigation_drawer_scree
 import com.ayushsinghal.notes.feature.notes.presentation.navigation_drawer_screens.trash_screen.TrashScreenViewModel
 import com.ayushsinghal.notes.feature.notes.util.NoteStatus
 import com.ayushsinghal.notes.util.Screen
-import com.google.accompanist.systemuicontroller.SystemUiController
-import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
 fun AddEditNoteScreen(
     navController: NavController,
@@ -124,11 +129,14 @@ fun AddEditNoteScreen(
 
     val noteColorIndex = addEditNoteViewModel.noteColorIndex
     val noteColor = getColors()[noteColorIndex.value]
-//    val noteColor = if (noteColorIndex.value == -1) {
-//        MaterialTheme.colorScheme.surface
-//    } else {
-//        getColors()[noteColorIndex.value]
-//    }
+
+    val noteBackgroundImageIndex = addEditNoteViewModel.noteBackgroundImageIndex
+    val noteBackgroundImage = Note.getBackgroundImages()[noteBackgroundImageIndex.value]
+    val backgroundColor = if ((noteBackgroundImageIndex.value == 0)) {
+        noteColor
+    } else {
+        Color.Transparent
+    }
 
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
 
@@ -218,7 +226,12 @@ fun AddEditNoteScreen(
         ModalBottomSheet(
             onDismissRequest = { openBottomSheet = false },
             containerColor = noteColor,
-            windowInsets = WindowInsets(0,0,0,0) // To make the status bar color dim when ModalBottomSheet is shown
+            windowInsets = WindowInsets(
+                0,
+                0,
+                0,
+                0
+            ) // To make the status bar color dim when ModalBottomSheet is shown
         ) {
             Text(
                 text = "Color",
@@ -236,201 +249,256 @@ fun AddEditNoteScreen(
                 })
 
             Spacer(modifier = Modifier.height(15.dp))
+
+            Text(
+                text = "Background",
+                modifier = Modifier
+                    .padding(start = 10.dp)
+            )
+
+            BackgroundChooser(
+                imageValues = Note.getBackgroundImages(),
+                selectedImageIndex = noteBackgroundImageIndex.value,
+                onClickBackground = {
+                    addEditNoteViewModel.onEvent(AddEditNoteEvent.ChangeBackground(it))
+                }
+            )
+
+            Spacer(modifier = Modifier.height(35.dp))
         }
     }
 
-    Scaffold(
-        modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
-        snackbarHost = { SnackbarHost(snackbarHostState) },
-        topBar = {
-            TopBar(
-                noteStatusArg = noteStatusArg,
-                color = noteColor,
-                navController = navController,
-                archiveUnArchiveButtonClicked = {
-                    if (noteStatusArg == NoteStatus.ExistingNote.type) {
-                        archiveScreenViewModel.onArchiveEvent(
-                            ArchiveEvent.MoveNoteToArchive(
-                                currentNoteId!!
-                            )
-                        )
-                        navController.navigateUp()
 
-                    } else if (noteStatusArg == NoteStatus.ArchivedNote.type) {
-                        archiveScreenViewModel.onArchiveEvent(
-                            ArchiveEvent.MoveNoteFromArchive(
-                                currentNoteId!!
-                            )
-                        )
-                        navController.navigateUp()
-                        navController.navigate(
-                            Screen.AddEditNoteScreen.route +
-                                    "?noteId=${currentNoteId}&noteStatus=${NoteStatus.ExistingNote.type}"
-                        )
-                    }
-                },
-                scrollBehavior = scrollBehavior
-            )
-        },
+    Box(
+        modifier = Modifier.fillMaxSize()
+    )
+    {
 
-        bottomBar = {
-            Log.d(TAG, "noteStatusArg: $noteStatusArg")
-            BottomBar(
-                noteStatusArg = noteStatusArg,
-                color = noteColor,
-                onClickPaletteIcon = {
-                    if(noteStatusArg!=NoteStatus.TrashedNote.type) {
-                        openBottomSheet = true
-                    }else{
-                        scope.launch {
-                            snackbarHostState.showSnackbar(message = "Can't edit in Trash")
-                        }
-                    }
-                },
-                onClickDeleteOrDeleteForever = {
-                    showDeleteDialog.value = true
-                },
-                onClickShareOrRestore = {
-                    if (noteStatusArg == NoteStatus.TrashedNote.type) {
-                        currentNoteId?.let {
-                            TrashEvent.RestoreNote(it)
-                        }?.let {
-                            trashScreenViewModel.onTrashEvent(it)
+        Image(
+            modifier = Modifier.fillMaxSize(),
+            painter = painterResource(noteBackgroundImage),
+            contentDescription = "Background Image",
+            contentScale = ContentScale.Crop
+        )
+
+        Scaffold(
+            modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
+            snackbarHost = { SnackbarHost(snackbarHostState) },
+            topBar = {
+                TopBar(
+                    noteStatusArg = noteStatusArg,
+                    color = backgroundColor,
+                    navController = navController,
+                    archiveUnArchiveButtonClicked = {
+                        if (noteStatusArg == NoteStatus.ExistingNote.type) {
+                            archiveScreenViewModel.onArchiveEvent(
+                                ArchiveEvent.MoveNoteToArchive(
+                                    currentNoteId!!
+                                )
+                            )
+                            navController.navigateUp()
+
+                        } else if (noteStatusArg == NoteStatus.ArchivedNote.type) {
+                            archiveScreenViewModel.onArchiveEvent(
+                                ArchiveEvent.MoveNoteFromArchive(
+                                    currentNoteId!!
+                                )
+                            )
                             navController.navigateUp()
                             navController.navigate(
                                 Screen.AddEditNoteScreen.route +
                                         "?noteId=${currentNoteId}&noteStatus=${NoteStatus.ExistingNote.type}"
                             )
                         }
-                    } else {
-                        addEditNoteViewModel.viewModelScope.launch {
-                            addEditNoteViewModel.onEvent(AddEditNoteEvent.ShareNote(context))
+                    },
+                    scrollBehavior = scrollBehavior
+                )
+            },
+
+            bottomBar = {
+                BottomBar(
+                    noteStatusArg = noteStatusArg,
+                    color = backgroundColor,
+                    onClickPaletteIcon = {
+                        if (noteStatusArg != NoteStatus.TrashedNote.type) {
+                            openBottomSheet = true
+                        } else {
+                            scope.launch {
+                                snackbarHostState.showSnackbar(message = "Can't edit in Trash")
+                            }
+                        }
+                    },
+                    onClickDeleteOrDeleteForever = {
+                        showDeleteDialog.value = true
+                    },
+                    onClickShareOrRestore = {
+                        if (noteStatusArg == NoteStatus.TrashedNote.type) {
+                            currentNoteId?.let {
+                                TrashEvent.RestoreNote(it)
+                            }?.let {
+                                trashScreenViewModel.onTrashEvent(it)
+                                navController.navigateUp()
+                                navController.navigate(
+                                    Screen.AddEditNoteScreen.route +
+                                            "?noteId=${currentNoteId}&noteStatus=${NoteStatus.ExistingNote.type}"
+                                )
+                            }
+                        } else {
+                            addEditNoteViewModel.viewModelScope.launch {
+                                addEditNoteViewModel.onEvent(AddEditNoteEvent.ShareNote(context))
+                            }
+                        }
+                    },
+                    onClickMakeACopy = {
+                        addEditNoteViewModel.onEvent(AddEditNoteEvent.MakeACopy)
+                        navController.popBackStack()
+                    },
+                    onClickMenu = {}
+                )
+            },
+
+//            containerColor = noteColor,
+            containerColor = backgroundColor,
+        ) { paddingValues ->
+
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues)
+                    .padding(horizontal = 12.dp)
+                    .verticalScroll(rememberScrollState())
+
+            ) {
+
+                TagsColumn(tagsList = myTagsList,
+                    onAddTagButtonClick = {
+                        if (noteStatusArg == NoteStatus.TrashedNote.type) {
+                            scope.launch {
+                                snackbarHostState.showSnackbar(message = "Can't edit in Trash")
+                            }
+                        } else {
+                            showTagDialog.value = true
+                        }
+                    },
+                    onClick = {
+                        if (noteStatusArg == NoteStatus.TrashedNote.type) {
+                            scope.launch {
+                                snackbarHostState.showSnackbar(message = "Can't edit in Trash")
+                            }
+                        } else {
+                            showTagDialog.value = true
+                            tagIndex.value = it
                         }
                     }
-                },
-                onClickMakeACopy = {
-                    addEditNoteViewModel.onEvent(AddEditNoteEvent.MakeACopy)
-                    navController.popBackStack()
-                },
-                onClickMenu = {}
-            )
-        },
+                )
 
-        containerColor = noteColor,
-    ) { paddingValues ->
-
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-                .padding(horizontal = 12.dp)
-                .verticalScroll(rememberScrollState())
-
-        ) {
-
-            TagsColumn(tagsList = myTagsList,
-                onAddTagButtonClick = {
-                    if (noteStatusArg == NoteStatus.TrashedNote.type) {
-                        scope.launch {
-                            snackbarHostState.showSnackbar(message = "Can't edit in Trash")
+                TransparentHintTextField(
+                    givenText = titleState.text,
+                    hint = titleState.hint,
+                    onValueChange = {
+                        addEditNoteViewModel.onEvent(AddEditNoteEvent.EnteredTitle(it))
+                    },
+                    singleLine = true,
+                    enabled = noteStatusArg != NoteStatus.TrashedNote.type,
+                    keyboardOptions = KeyboardOptions
+                        (
+                        capitalization = KeyboardCapitalization.Sentences,
+                        imeAction = ImeAction.Next
+                    ),
+                    keyboardActions = KeyboardActions(),
+                    onFocusChange = { focusState ->
+                        if (focusState.isFocused && noteStatusArg == NoteStatus.TrashedNote.type) {
+                            scope.launch {
+                                snackbarHostState.showSnackbar(message = "Can't edit in Trash")
+                            }
+                        } else {
+                            addEditNoteViewModel.onEvent(
+                                AddEditNoteEvent.ChangeTitleFocus(
+                                    focusState
+                                )
+                            )
                         }
-                    } else {
-                        showTagDialog.value = true
-                    }
-                },
-                onClick = {
-                    if (noteStatusArg == NoteStatus.TrashedNote.type) {
-                        scope.launch {
-                            snackbarHostState.showSnackbar(message = "Can't edit in Trash")
+                    },
+                    textStyle = MaterialTheme.typography.headlineLarge
+                )
+
+                TransparentHintTextField(
+                    givenText = contentState.text,
+                    hint = contentState.hint,
+                    onValueChange = {
+                        addEditNoteViewModel.onEvent(AddEditNoteEvent.EnteredContent(it))
+                    },
+                    enabled = noteStatusArg != NoteStatus.TrashedNote.type,
+                    keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences),
+                    keyboardActions = KeyboardActions(),
+                    onFocusChange = { focusState ->
+                        if (focusState.isFocused && noteStatusArg == NoteStatus.TrashedNote.type) {
+                            scope.launch {
+                                snackbarHostState.showSnackbar(message = "Can't edit in Trash")
+                            }
+                        } else {
+                            addEditNoteViewModel.onEvent(
+                                AddEditNoteEvent.ChangeContentFocus(
+                                    focusState
+                                )
+                            )
                         }
-                    } else {
-                        showTagDialog.value = true
-                        tagIndex.value = it
-                    }
+                    },
+                    textStyle = MaterialTheme.typography.bodyMedium,
+                )
+
+                Spacer(modifier = Modifier.height(50.dp))
+
+                Text(
+                    text = "Created: ${convertTimestampToDate(createdDate.value)}",
+                    style = MaterialTheme.typography.labelSmall.copy(
+                        fontSize = 11.sp,
+                        fontFamily = FontFamily.Serif
+                    )
+                )
+
+                Spacer(modifier = Modifier.height(5.dp))
+
+                Text(
+                    text = "Updated: ${convertTimestampToDate(lastModifiedDate.value)}",
+                    style = MaterialTheme.typography.labelSmall.copy(
+                        fontSize = 11.sp,
+                        fontFamily = FontFamily.Serif
+                    )
+                )
+
+                Spacer(modifier = Modifier.height(10.dp))
+
+                if ((noteBackgroundImageIndex.value != 0) && (noteColorIndex.value != 0)) {
+                    Box(
+                        modifier = Modifier
+                            .size(70.dp)
+                            .padding(10.dp)
+                            .clip(CircleShape)
+                            .background(noteColor)
+                            .combinedClickable(
+                                interactionSource = remember { MutableInteractionSource() },
+                                indication = rememberRipple(),
+                                onClick = {
+                                    if (noteStatusArg != NoteStatus.TrashedNote.type) {
+                                        openBottomSheet = true
+                                    } else {
+                                        scope.launch {
+                                            snackbarHostState.showSnackbar(message = "Can't edit in Trash")
+                                        }
+                                    }
+                                },
+                            )
+                            .border(
+                                width = 2.dp,
+                                color = Color.Black,
+                                shape = CircleShape
+                            )
+                    )
                 }
-            )
-
-            TransparentHintTextField(
-                givenText = titleState.text,
-                hint = titleState.hint,
-                onValueChange = {
-                    addEditNoteViewModel.onEvent(AddEditNoteEvent.EnteredTitle(it))
-                },
-                singleLine = true,
-                enabled = noteStatusArg != NoteStatus.TrashedNote.type,
-                keyboardOptions = KeyboardOptions
-                    (
-                    capitalization = KeyboardCapitalization.Sentences,
-                    imeAction = ImeAction.Next
-                ),
-                keyboardActions = KeyboardActions(),
-                onFocusChange = { focusState ->
-                    if (focusState.isFocused && noteStatusArg == NoteStatus.TrashedNote.type) {
-                        scope.launch {
-                            snackbarHostState.showSnackbar(message = "Can't edit in Trash")
-                        }
-                    } else {
-                        addEditNoteViewModel.onEvent(
-                            AddEditNoteEvent.ChangeTitleFocus(
-                                focusState
-                            )
-                        )
-                    }
-                },
-                textStyle = MaterialTheme.typography.headlineLarge
-            )
-
-            TransparentHintTextField(
-                givenText = contentState.text,
-                hint = contentState.hint,
-                onValueChange = {
-                    addEditNoteViewModel.onEvent(AddEditNoteEvent.EnteredContent(it))
-                },
-                enabled = noteStatusArg != NoteStatus.TrashedNote.type,
-                keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences),
-                keyboardActions = KeyboardActions(),
-                onFocusChange = { focusState ->
-                    if (focusState.isFocused && noteStatusArg == NoteStatus.TrashedNote.type) {
-                        scope.launch {
-                            snackbarHostState.showSnackbar(message = "Can't edit in Trash")
-                        }
-                    } else {
-                        addEditNoteViewModel.onEvent(
-                            AddEditNoteEvent.ChangeContentFocus(
-                                focusState
-                            )
-                        )
-                    }
-                },
-                textStyle = MaterialTheme.typography.bodyMedium,
-            )
-
-            Spacer(modifier = Modifier.height(50.dp))
-
-            Text(
-                text = "Created: ${convertTimestampToDate(createdDate.value)}",
-                style = MaterialTheme.typography.labelSmall.copy(
-                    fontSize = 11.sp,
-                    fontFamily = FontFamily.Serif
-                )
-            )
-
-            Spacer(modifier = Modifier.height(5.dp))
-
-            Text(
-                text = "Updated: ${convertTimestampToDate(lastModifiedDate.value)}",
-                style = MaterialTheme.typography.labelSmall.copy(
-                    fontSize = 11.sp,
-                    fontFamily = FontFamily.Serif
-                )
-            )
-
-            Spacer(modifier = Modifier.height(10.dp))
-
-
+            }
         }
     }
-
 
 }
 
@@ -549,32 +617,6 @@ fun BottomBar(
     }
 }
 
-//@OptIn(ExperimentalMaterial3Api::class)
-//@Composable
-//fun MyBottomSheet(
-//    myBottomSheetContent: @Composable () -> Unit,
-//    content: @Composable (SheetState) -> Unit
-//) {
-//    val bottomSheetState = rememberStandardBottomSheetState(
-//        initialValue = SheetValue.Hidden,
-//        skipHiddenState = false,
-//    )
-//
-//    val modalSheetState = rememberBottomSheetScaffoldState(
-//        bottomSheetState = bottomSheetState
-//    )
-//
-//    BottomSheetScaffold(
-//        scaffoldState = modalSheetState,
-//        sheetContent = {
-//            myBottomSheetContent()
-//        },
-//        sheetPeekHeight = 0.dp
-//    ) {
-//        content(bottomSheetState)
-//    }
-//}
-
 @Composable
 fun ColorChooser(
     colorValues: List<Int>,
@@ -598,6 +640,36 @@ fun ColorChooser(
                     .border(
                         width = if (selectedColorIndex == it) 2.dp else 1.dp,
                         color = if (selectedColorIndex == it) MaterialTheme.colorScheme.primary else Color.Black,
+                        shape = CircleShape
+                    )
+            )
+        }
+    }
+}
+
+@Composable
+fun BackgroundChooser(
+    imageValues: List<Int>,
+    selectedImageIndex: Int,
+    onClickBackground: (backgroundIndex: Int) -> Unit
+) {
+    LazyRow(
+        modifier = Modifier
+            .fillMaxWidth()
+    ) {
+        items(imageValues.size) {
+            Box(
+                modifier = Modifier
+                    .size(70.dp)
+                    .padding(10.dp)
+                    .clip(CircleShape)
+                    .paint(painterResource(imageValues[it]), contentScale = ContentScale.Crop)
+                    .clickable {
+                        onClickBackground(it)
+                    }
+                    .border(
+                        width = if (selectedImageIndex == it) 2.dp else 1.dp,
+                        color = if (selectedImageIndex == it) MaterialTheme.colorScheme.primary else Color.Black,
                         shape = CircleShape
                     )
             )
@@ -634,31 +706,6 @@ fun TagsColumn(
             }
         }
     }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun test(
-    myBottomSheetContent: @Composable () -> Unit,
-    content: @Composable (SheetState) -> Unit
-) {
-    ModalBottomSheet(onDismissRequest = { /*TODO*/ }) {
-        Text(text = "Sheet Content")
-    }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Preview
-@Composable
-fun testPrev() {
-    test(
-        myBottomSheetContent = {
-            Text(text = "Sheet Content")
-        },
-        content = {
-            Text(text = "Behind Sheet")
-        }
-    )
 }
 
 //@Preview(showSystemUi = true)
@@ -772,6 +819,16 @@ fun testPrev() {
 //        onClickColor = {
 //            selectedColor = Color(it)
 //        }
+//    )
+//}
+
+//@Preview(showSystemUi = true)
+//@Composable
+//fun BackgroundChooserPreview() {
+//    BackgroundChooser(
+//        imageValues = Note.getBackgroundImages(),
+//        selectedImageIndex = 1,
+//        onClickBackground = {}
 //    )
 //}
 

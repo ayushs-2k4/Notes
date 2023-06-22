@@ -82,7 +82,7 @@ fun TrashScreen(
                 .fillMaxSize()
                 .padding(paddingValues)
         ) {
-            items(notes.value,key={note->
+            items(notes.value, key = { note ->
                 note.id ?: 0
             }) { note ->
                 NoteItem(
@@ -93,7 +93,7 @@ fun TrashScreen(
                         .clickable {
                         },
                     note = note,
-                    onClick = {
+                    onNoteItemClick = {
                         Log.d(TAG, "id: ${note.id}")
                         navController.navigate("${Screen.AddEditNoteScreen.route}?noteId=${note.id}&noteStatus=${NoteStatus.TrashedNote.type}")
                     },

@@ -28,4 +28,6 @@ sealed class AddEditNoteEvent {
     object MakeACopy : AddEditNoteEvent()
 
     class ChangeColor(val noteColorIndex: Int) : AddEditNoteEvent()
+
+    class ChangeBackground(val noteBackgroundImageIndex: Int) : AddEditNoteEvent()
 }

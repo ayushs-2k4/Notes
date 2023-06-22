@@ -51,6 +51,9 @@ class AddEditNoteViewModel @Inject constructor(
     private val _noteColorIndex = mutableStateOf<Int>(0)
     val noteColorIndex: State<Int> = _noteColorIndex
 
+    private val _noteBackgroundImageIndex = mutableStateOf<Int>(0)
+    val noteBackgroundImageIndex: State<Int> = _noteBackgroundImageIndex
+
 
     var currentNoteId: Int? = null
 
@@ -99,8 +102,9 @@ class AddEditNoteViewModel @Inject constructor(
 
 //                        isTrashed = note?.isTrashed!!
 
-                        _noteColorIndex.value = (note?.selectedColorIndex!!)
+                        _noteColorIndex.value = note?.selectedColorIndex!!
 
+                        _noteBackgroundImageIndex.value = note.selectedBackgroundImageIndex
                     }
                 }
             }
@@ -163,7 +167,8 @@ class AddEditNoteViewModel @Inject constructor(
                                         }
                                     },
                                     isArchived = noteStatus == NoteStatus.ArchivedNote.type,
-                                    selectedColorIndex = noteColorIndex.value
+                                    selectedColorIndex = noteColorIndex.value,
+                                    selectedBackgroundImageIndex = noteBackgroundImageIndex.value
                                 )
                             )
                         } catch (e: InvalidNoteException) {
@@ -225,6 +230,12 @@ class AddEditNoteViewModel @Inject constructor(
 
             is AddEditNoteEvent.ChangeColor -> {
                 _noteColorIndex.value = addEditNoteEvent.noteColorIndex
+            }
+
+            is AddEditNoteEvent.ChangeBackground -> {
+//                Log.d(TAG, "Before Background Index: ${_noteBackgroundImageIndex.value}")
+                _noteBackgroundImageIndex.value = addEditNoteEvent.noteBackgroundImageIndex
+//                Log.d(TAG, "After Background Index: ${_noteBackgroundImageIndex.value}")
             }
         }
     }

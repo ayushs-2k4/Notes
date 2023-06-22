@@ -226,7 +226,7 @@ fun AllNotesScreenMainScreen(
                                     .clickable {
                                     },
                                 note = note,
-                                onClick = {
+                                onNoteItemClick = {
                                     Log.d(TAG, "id: ${note.id}")
                                     navController.navigate(
                                         Screen.AddEditNoteScreen.route +
@@ -253,7 +253,7 @@ fun AllNotesScreenMainScreen(
                                     .clickable {
                                     },
                                 note = note,
-                                onClick = {
+                                onNoteItemClick = {
                                     Log.d(TAG, "id: ${note.id}")
                                     navController.navigate(
                                         Screen.AddEditNoteScreen.route +
