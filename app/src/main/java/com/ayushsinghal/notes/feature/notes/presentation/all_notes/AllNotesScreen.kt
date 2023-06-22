@@ -177,6 +177,7 @@ fun AllNotesScreenMainScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
+                .padding(top = 10.dp)
         ) {
 
             val offsetYOfOrderSection by animateDpAsState(
