@@ -1,4 +1,4 @@
-package com.ayushsinghal.notes.feature.notes.presentation.add_edit_note.components
+package com.ayushsinghal.notes.feature.notes.presentation.all_notes.components
 
 import android.util.Log
 import androidx.compose.animation.core.animateDpAsState
@@ -50,12 +50,10 @@ fun MySearchBar(
         onQueryChange = {
             onQueryChange(it)
             text = it
-            Log.d(TAG, "onQueryChange: $it")
         },
         onSearch = {
             onSearch(it)
             active = false
-            Log.d(TAG, "onSearch: $it")
         },
         active = active,
         onActiveChange = {

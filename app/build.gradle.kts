@@ -12,12 +12,12 @@ plugins {
 
 android {
     namespace = "com.ayushsinghal.notes"
-    compileSdk = 33
+    compileSdk = 34
 
     defaultConfig {
         applicationId = "com.ayushsinghal.notes"
         minSdk = 26
-        targetSdk = 33
+        targetSdk = 34
         versionCode = 1
         versionName = "1.0.0"
 
@@ -124,7 +124,7 @@ dependencies {
     // System UI Controller for Jetpack Compose
     implementation("com.google.accompanist:accompanist-systemuicontroller:0.30.1")
 
-    implementation("androidx.compose.material3:material3:1.2.0-alpha02")
-    implementation("androidx.compose.material3:material3-window-size-class:1.2.0-alpha02")
+    implementation("androidx.compose.material3:material3:1.2.0-alpha03")
+    implementation("androidx.compose.material3:material3-window-size-class:1.2.0-alpha03")
 }
 

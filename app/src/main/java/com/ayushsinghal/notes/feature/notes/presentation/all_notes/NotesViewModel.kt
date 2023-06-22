@@ -69,13 +69,11 @@ class NotesViewModel @Inject constructor(
             }
 
             is NotesEvent.SearchNote -> {
-                viewModelScope.launch {
-                    noteUseCases.searchNotesUseCase(
-                        query = notesEvent.query,
-                        _state = _state,
-                        originalNotes = originalNotes
-                    )
-                }
+                noteUseCases.searchNotesUseCase(
+                    query = notesEvent.query,
+                    _state = _state,
+                    originalNotes = originalNotes
+                )
             }
         }
     }

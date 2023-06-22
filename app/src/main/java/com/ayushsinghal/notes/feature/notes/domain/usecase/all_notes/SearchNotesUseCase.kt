@@ -5,13 +5,13 @@ import com.ayushsinghal.notes.feature.notes.domain.model.Note
 import com.ayushsinghal.notes.feature.notes.presentation.all_notes.NotesState
 
 class SearchNotesUseCase {
-    suspend operator fun invoke(
+    operator fun invoke(
         query: String,
         _state: MutableState<NotesState>,
         originalNotes: List<Note>
     ) {
         if (query.isNotEmpty()) {
-            val filteredNotes = _state.value.notes.filter { note ->
+            val filteredNotes = originalNotes.filter { note ->
                 note.title.contains(query, ignoreCase = true) ||
                         note.content.contains(query, ignoreCase = true) ||
                         note.tags.any { tag ->
