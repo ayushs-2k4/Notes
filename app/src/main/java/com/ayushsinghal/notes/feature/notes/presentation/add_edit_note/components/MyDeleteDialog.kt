@@ -33,7 +33,8 @@ fun DeleteDialog(
         },
         dismissButton = {
             TextButton(onClick = { onCancelClick() }) {
-                Text(text = dismissButtonText)
+                Text(text = dismissButtonText,
+                    style = TextStyle())
             }
         }
     )

@@ -2,17 +2,12 @@ package com.ayushsinghal.notes.feature.notes.presentation.all_notes
 
 import android.util.Log
 import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.Crossfade
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.animation.slideInHorizontally
-import androidx.compose.animation.slideInVertically
-import androidx.compose.animation.slideOutHorizontally
-import androidx.compose.animation.slideOutVertically
-import androidx.compose.animation.with
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -49,7 +44,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -62,10 +56,10 @@ import com.ayushsinghal.notes.feature.authentication.presentation.signin.TAG
 import com.ayushsinghal.notes.feature.notes.presentation.add_edit_note.components.MySearchBar
 import com.ayushsinghal.notes.feature.notes.presentation.all_notes.components.NoteItem
 import com.ayushsinghal.notes.feature.notes.presentation.all_notes.components.OrderSection
-import com.ayushsinghal.notes.util.Screen
-import kotlinx.coroutines.launch
 import com.ayushsinghal.notes.feature.notes.presentation.all_notes.navigation_darwer.DrawerMenuItems
 import com.ayushsinghal.notes.feature.notes.util.NoteStatus
+import com.ayushsinghal.notes.util.Screen
+import kotlinx.coroutines.launch
 
 @Composable
 fun AllNotesScreen(
@@ -211,7 +205,7 @@ fun AllNotesScreenMainScreen(
             // Notes grid
             AnimatedContent(targetState = isGridLayoutSelected, label = "", transitionSpec = {
 //                slideInVertically { fullHeight -> fullHeight } + fadeIn() with slideOutVertically { fullHeight -> -fullHeight } + fadeOut()
-                fadeIn() with fadeOut()
+                fadeIn() togetherWith fadeOut()
             }) { targetState ->
                 if (targetState) {
                     LazyVerticalStaggeredGrid(
@@ -220,11 +214,14 @@ fun AllNotesScreenMainScreen(
                             .fillMaxSize()
                             .offset(y = offsetYOfAllNotes)
                     ) {
-                        items(state.notes) { note ->
+                        items(state.notes, key = { note ->
+                            note.id ?: 0
+                        }) { note ->
                             NoteItem(
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .padding(4.dp)
+                                    .animateItemPlacement()
                                     .clickable {
                                     },
                                 note = note,
@@ -244,11 +241,14 @@ fun AllNotesScreenMainScreen(
                             .fillMaxSize()
                             .offset(y = offsetYOfAllNotes)
                     ) {
-                        items(state.notes) { note ->
+                        items(state.notes, key = { note ->
+                            note.id ?: 0
+                        }) { note ->
                             NoteItem(
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .padding(10.dp)
+                                    .animateItemPlacement()
                                     .clickable {
                                     },
                                 note = note,
