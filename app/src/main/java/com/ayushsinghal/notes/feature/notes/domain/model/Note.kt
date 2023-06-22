@@ -40,9 +40,6 @@ data class Note(
 ) {
     companion object {
 
-//        val noteColors = getColors()
-
-
         @Composable
         fun getColors(): List<Color> {
 
@@ -79,27 +76,27 @@ data class Note(
         fun getBackgroundImages(): List<Int> {
             val lightColorImages = listOf(
                 R.drawable.image_not_supported,
-                R.drawable.note_background_light_video_0609,
-                R.drawable.note_background_light_travel_0614,
-                R.drawable.note_background_light_recipe_0609,
-                R.drawable.note_background_light_places_0609,
-                R.drawable.note_background_light_notes_0609,
-                R.drawable.note_background_light_music_0609,
                 R.drawable.note_background_light_grocery_0609,
                 R.drawable.note_background_light_food_0609,
+                R.drawable.note_background_light_music_0609,
+                R.drawable.note_background_light_travel_0614,
+                R.drawable.note_background_light_recipe_0609,
+                R.drawable.note_background_light_notes_0609,
+                R.drawable.note_background_light_places_0609,
+                R.drawable.note_background_light_video_0609,
                 R.drawable.note_background_light_celebration_0714
             )
 
             val darkColorImages = listOf(
                 R.drawable.image_not_supported,
-                R.drawable.note_background_dark_video_0609,
-                R.drawable.note_background_dark_travel_0609,
-                R.drawable.note_background_dark_recipe_0609,
-                R.drawable.note_background_dark_places_0609,
-                R.drawable.note_background_dark_notes_0714,
-                R.drawable.note_background_dark_music_0609,
                 R.drawable.note_background_dark_grocery_0609,
                 R.drawable.note_background_dark_food_0609,
+                R.drawable.note_background_dark_music_0609,
+                R.drawable.note_background_dark_travel_0609,
+                R.drawable.note_background_dark_recipe_0609,
+                R.drawable.note_background_dark_notes_0714,
+                R.drawable.note_background_dark_places_0609,
+                R.drawable.note_background_dark_video_0609,
                 R.drawable.note_background_dark_celebration_0714
             )
 

@@ -660,7 +660,7 @@ fun BackgroundChooser(
         items(imageValues.size) {
             Box(
                 modifier = Modifier
-                    .size(70.dp)
+                    .size(80.dp)
                     .padding(10.dp)
                     .clip(CircleShape)
                     .paint(painterResource(imageValues[it]), contentScale = ContentScale.Crop)
