@@ -3,6 +3,7 @@ package com.ayushsinghal.notes.feature.notes.presentation.all_notes
 import android.util.Log
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
@@ -223,6 +224,7 @@ fun AllNotesScreenMainScreen(
                                     .fillMaxWidth()
                                     .padding(4.dp)
                                     .animateItemPlacement()
+                                    .animateContentSize()
                                     .clickable {
                                     },
                                 note = note,
@@ -250,6 +252,7 @@ fun AllNotesScreenMainScreen(
                                     .fillMaxWidth()
                                     .padding(10.dp)
                                     .animateItemPlacement()
+                                    .animateContentSize()
                                     .clickable {
                                     },
                                 note = note,
