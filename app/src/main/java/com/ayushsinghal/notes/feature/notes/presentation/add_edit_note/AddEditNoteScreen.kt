@@ -398,7 +398,6 @@ fun AddEditNoteScreen(
                     onValueChange = {
                         addEditNoteViewModel.onEvent(AddEditNoteEvent.EnteredTitle(it))
                     },
-                    singleLine = true,
                     enabled = noteStatusArg != NoteStatus.TrashedNote.type,
                     keyboardOptions = KeyboardOptions
                         (
@@ -419,7 +418,7 @@ fun AddEditNoteScreen(
                             )
                         }
                     },
-                    textStyle = MaterialTheme.typography.headlineLarge
+                    textStyle = MaterialTheme.typography.headlineSmall
                 )
 
                 TransparentHintTextField(
@@ -444,7 +443,7 @@ fun AddEditNoteScreen(
                             )
                         }
                     },
-                    textStyle = MaterialTheme.typography.bodyMedium,
+                    textStyle = MaterialTheme.typography.bodyLarge,
                 )
 
                 Spacer(modifier = Modifier.height(50.dp))
