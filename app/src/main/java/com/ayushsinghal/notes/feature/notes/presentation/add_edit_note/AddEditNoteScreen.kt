@@ -399,6 +399,12 @@ fun AddEditNoteScreen(
                         addEditNoteViewModel.onEvent(AddEditNoteEvent.EnteredTitle(it))
                     },
                     enabled = noteStatusArg != NoteStatus.TrashedNote.type,
+                    maxLength = 500,
+                    onMaxLengthExceeded = {
+                        scope.launch {
+                            snackbarHostState.showSnackbar(message = "Title too Large")
+                        }
+                    },
                     keyboardOptions = KeyboardOptions
                         (
                         capitalization = KeyboardCapitalization.Sentences,

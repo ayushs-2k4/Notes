@@ -55,7 +55,6 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.ayushsinghal.notes.feature.authentication.presentation.signin.TAG
 import com.ayushsinghal.notes.feature.notes.presentation.all_notes.components.MySearchBar
-import com.ayushsinghal.notes.feature.notes.presentation.all_notes.components.MySearchBar2
 import com.ayushsinghal.notes.feature.notes.presentation.all_notes.components.NoteItem
 import com.ayushsinghal.notes.feature.notes.presentation.all_notes.components.OrderSection
 import com.ayushsinghal.notes.feature.notes.presentation.all_notes.navigation_darwer.DrawerMenuItems

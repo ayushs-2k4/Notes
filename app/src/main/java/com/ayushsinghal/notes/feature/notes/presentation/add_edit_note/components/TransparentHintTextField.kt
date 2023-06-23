@@ -23,6 +23,8 @@ fun TransparentHintTextField(
     textStyle: TextStyle = TextStyle(),
     singleLine: Boolean = false,
     enabled: Boolean,
+    maxLength: Int = 100000,
+    onMaxLengthExceeded: () -> Unit = {},
     keyboardOptions: KeyboardOptions = KeyboardOptions(),
     keyboardActions: KeyboardActions = KeyboardActions(),
     onFocusChange: (FocusState) -> Unit
@@ -42,7 +44,13 @@ fun TransparentHintTextField(
 
     TextField(
         value = givenText,
-        onValueChange = onValueChange,
+        onValueChange = {
+            if (it.length <= maxLength) {
+                onValueChange(it)
+            } else {
+                onMaxLengthExceeded()
+            }
+        },
         singleLine = singleLine,
         textStyle = textStyle,
         enabled = enabled,
@@ -70,7 +78,9 @@ fun TransparentHintTextFieldPreview() {
         givenText = "Text",
         hint = "Hint",
         enabled = true,
+        maxLength = 50,
         onValueChange = {},
-        onFocusChange = {}
+        onFocusChange = {},
+        onMaxLengthExceeded = {}
     )
 }
