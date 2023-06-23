@@ -12,7 +12,9 @@ import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
 import androidx.compose.foundation.lazy.staggeredgrid.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Archive
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.outlined.Archive
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -30,6 +32,7 @@ import androidx.navigation.NavController
 import com.ayushsinghal.notes.R
 import com.ayushsinghal.notes.feature.authentication.presentation.signin.TAG
 import com.ayushsinghal.notes.feature.notes.presentation.all_notes.components.NoteItem
+import com.ayushsinghal.notes.feature.notes.presentation.common_components.EmptyNotesScreen
 import com.ayushsinghal.notes.feature.notes.presentation.navigation_drawer_screens.trash_screen.TopBar
 import com.ayushsinghal.notes.feature.notes.util.NoteStatus
 import com.ayushsinghal.notes.util.Screen
@@ -37,7 +40,7 @@ import com.ayushsinghal.notes.util.Screen
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun ArchiveScreen(
-    archiveScreenViewModel: ArchiveScreenViewModel= hiltViewModel(),
+    archiveScreenViewModel: ArchiveScreenViewModel = hiltViewModel(),
     navController: NavController
 ) {
     val notes = archiveScreenViewModel.notes
@@ -50,32 +53,38 @@ fun ArchiveScreen(
         }
     ) { paddingValues ->
 
-        // Notes grid
-        LazyVerticalStaggeredGrid(
-            columns = StaggeredGridCells.Fixed(2),
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-        ) {
-            items(notes.value,key={note->
-                note.id ?: 0
-            }) { note ->
-                NoteItem(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(10.dp)
-                        .animateItemPlacement()
-                        .clickable {
+        if (notes.value.isEmpty()) {
+            EmptyNotesScreen(
+                image = Icons.Outlined.Archive,
+                subText = "Your Archived notes appear here"
+            )
+        } else {
+            // Notes grid
+            LazyVerticalStaggeredGrid(
+                columns = StaggeredGridCells.Fixed(2),
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues)
+            ) {
+                items(notes.value, key = { note ->
+                    note.id ?: 0
+                }) { note ->
+                    NoteItem(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(10.dp)
+                            .animateItemPlacement()
+                            .clickable {
+                            },
+                        note = note,
+                        onNoteItemClick = {
+                            Log.d(TAG, "id: ${note.id}")
+                            navController.navigate("${Screen.AddEditNoteScreen.route}?noteId=${note.id}&noteStatus=${NoteStatus.ArchivedNote.type}")
                         },
-                    note = note,
-                    onNoteItemClick = {
-                        Log.d(TAG, "id: ${note.id}")
-                        navController.navigate("${Screen.AddEditNoteScreen.route}?noteId=${note.id}&noteStatus=${NoteStatus.ArchivedNote.type}")
-                    },
-                )
+                    )
+                }
             }
         }
-
     }
 }
 

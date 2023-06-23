@@ -13,6 +13,7 @@ import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
 import androidx.compose.foundation.lazy.staggeredgrid.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.outlined.Archive
 import androidx.compose.material.icons.outlined.DeleteForever
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -37,6 +38,7 @@ import com.ayushsinghal.notes.R
 import com.ayushsinghal.notes.feature.authentication.presentation.signin.TAG
 import com.ayushsinghal.notes.feature.notes.presentation.add_edit_note.components.DeleteDialog
 import com.ayushsinghal.notes.feature.notes.presentation.all_notes.components.NoteItem
+import com.ayushsinghal.notes.feature.notes.presentation.common_components.EmptyNotesScreen
 import com.ayushsinghal.notes.feature.notes.util.NoteStatus
 import com.ayushsinghal.notes.util.Screen
 
@@ -75,29 +77,36 @@ fun TrashScreen(
         }
     ) { paddingValues ->
 
-        // Notes grid
-        LazyVerticalStaggeredGrid(
-            columns = StaggeredGridCells.Fixed(2),
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-        ) {
-            items(notes.value, key = { note ->
-                note.id ?: 0
-            }) { note ->
-                NoteItem(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(10.dp)
-                        .animateItemPlacement()
-                        .clickable {
+        if (notes.value.isEmpty()) {
+            EmptyNotesScreen(
+                image = R.drawable.delete_icon,
+                subText = "No notes in Trash"
+            )
+        } else {
+            // Notes grid
+            LazyVerticalStaggeredGrid(
+                columns = StaggeredGridCells.Fixed(2),
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues)
+            ) {
+                items(notes.value, key = { note ->
+                    note.id ?: 0
+                }) { note ->
+                    NoteItem(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(10.dp)
+                            .animateItemPlacement()
+                            .clickable {
+                            },
+                        note = note,
+                        onNoteItemClick = {
+                            Log.d(TAG, "id: ${note.id}")
+                            navController.navigate("${Screen.AddEditNoteScreen.route}?noteId=${note.id}&noteStatus=${NoteStatus.TrashedNote.type}")
                         },
-                    note = note,
-                    onNoteItemClick = {
-                        Log.d(TAG, "id: ${note.id}")
-                        navController.navigate("${Screen.AddEditNoteScreen.route}?noteId=${note.id}&noteStatus=${NoteStatus.TrashedNote.type}")
-                    },
-                )
+                    )
+                }
             }
         }
 
