@@ -133,7 +133,7 @@ class MainActivity : ComponentActivity() {
 
                         composable(route = NavigationDrawerScreen.Feedback.route)
                         {
-                            FeedbackScreen()
+                            FeedbackScreen(navController = navController)
                         }
                     }
                 }
