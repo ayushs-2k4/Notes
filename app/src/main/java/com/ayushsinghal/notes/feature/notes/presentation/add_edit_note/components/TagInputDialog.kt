@@ -2,11 +2,10 @@ package com.ayushsinghal.notes.feature.notes.presentation.add_edit_note.componen
 
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -38,7 +37,7 @@ fun TagInputDialog(
             )
         },
         confirmButton = {
-            Button(onClick = {
+            TextButton(onClick = {
                 onClickAddOrUpdateTag(inputText.value)
             }) {
                 Text(
@@ -51,7 +50,7 @@ fun TagInputDialog(
             }
         },
         dismissButton = {
-            Button(onClick = {
+            TextButton(onClick = {
                 onClickCancelOrDelete()
             }) {
                 Text(
@@ -69,7 +68,11 @@ fun TagInputDialog(
 @Preview
 @Composable
 fun TagInputDialogTruePreview() {
-    TagInputDialog(isNewTag = true, tagText = "", onClickAddOrUpdateTag = {}, onClickCancelOrDelete = {})
+    TagInputDialog(
+        isNewTag = true,
+        tagText = "",
+        onClickAddOrUpdateTag = {},
+        onClickCancelOrDelete = {})
 }
 
 @Preview
