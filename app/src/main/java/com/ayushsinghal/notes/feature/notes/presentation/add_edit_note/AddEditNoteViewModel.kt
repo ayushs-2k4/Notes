@@ -222,7 +222,9 @@ class AddEditNoteViewModel @Inject constructor(
                             content = _noteContent.value.text,
                             tags = _tagsLiveData.value,
                             createdDate = System.currentTimeMillis(),
-                            lastModifiedDate = System.currentTimeMillis()
+                            lastModifiedDate = System.currentTimeMillis(),
+                            selectedColorIndex = noteColorIndex.value,
+                            selectedBackgroundImageIndex = noteBackgroundImageIndex.value
                         )
                     )
                 }
@@ -233,9 +235,7 @@ class AddEditNoteViewModel @Inject constructor(
             }
 
             is AddEditNoteEvent.ChangeBackground -> {
-//                Log.d(TAG, "Before Background Index: ${_noteBackgroundImageIndex.value}")
                 _noteBackgroundImageIndex.value = addEditNoteEvent.noteBackgroundImageIndex
-//                Log.d(TAG, "After Background Index: ${_noteBackgroundImageIndex.value}")
             }
         }
     }
