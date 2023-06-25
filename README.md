@@ -1,6 +1,6 @@
 # Notes
 
-Welcome to the Notes App, a sophisticated Android application designed for efficient note-taking and organization. Built with industry-standard technologies and following best practices, this app showcases expertise in offline functionality, ROOM database integration for robust data management, Jetpack Compose for a modern and responsive user interface, MVVM architecture for separation of concerns, and clean architecture principles for code modularity and scalability. With a range of advanced features, such as note searching, customizable backgrounds, smooth animations, trash and archive functionalities, note sharing, note duplication, and tagging capabilities, the Notes App offers a comprehensive and professional solution for managing notes.
+Welcome to the Notes, a sophisticated Android application designed for efficient note-taking and organization. Built with industry-standard technologies and following best practices, this app showcases expertise in offline functionality, ROOM database integration for robust data management, Jetpack Compose for a modern and responsive user interface, MVVM architecture for separation of concerns, and clean architecture principles for code modularity and scalability. With a range of advanced features, such as note searching, customizable backgrounds, smooth animations, trash and archive functionalities, note sharing, note duplication, and tagging capabilities, the Notes App offers a comprehensive and professional solution for managing notes.
 
 # Features
 
